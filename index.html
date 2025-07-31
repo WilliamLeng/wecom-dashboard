@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>企微智慧导购数据仪表板 - WilliamLeng</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 备用CDN -->
+    <script>
+        // 检查Chart.js是否加载成功，如果失败则加载备用CDN
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"><\/script>');
+        }
+    </script>
 
     <style>
         * {
@@ -927,7 +934,7 @@
             </div>
             <div id="dataRangeInfo" style="text-align: center; padding: 12px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; color: rgba(255, 255, 255, 0.8); font-size: 14px;">
             📅 <span id="currentRange">请选择查询条件并点击"查询数据"按钮开始分析</span>
-                <div style="font-size: 12px; margin-top: 6px; opacity: 0.7;">💡 选择时间范围和结束月份，然后点击查询按钮展示数据</div>
+                <div id="loadingHint" style="font-size: 12px; margin-top: 6px; opacity: 0.7;">💡 选择时间范围和结束月份，然后点击查询按钮展示数据</div>
             </div>
         </div>
         
@@ -1229,6 +1236,25 @@
     </div>
 
     <script>
+        // 检查Chart.js加载状态并显示提示
+        let chartLoadCheckInterval = setInterval(function() {
+            const hintElement = document.getElementById('loadingHint');
+            if (typeof Chart !== 'undefined') {
+                // Chart.js加载完成
+                if (hintElement) {
+                    hintElement.textContent = '💡 选择时间范围和结束月份，然后点击查询按钮展示数据';
+                    hintElement.style.color = 'rgba(255, 255, 255, 0.7)';
+                }
+                clearInterval(chartLoadCheckInterval);
+            } else {
+                // Chart.js还在加载
+                if (hintElement) {
+                    hintElement.textContent = '⏳ 正在加载图表库，请稍候...';
+                    hintElement.style.color = '#fbbf24';
+                }
+            }
+        }, 100);
+
         // 主趋势图
         const mainCtx = document.getElementById('mainTrendChart').getContext('2d');
         window.usageTrendChart = new Chart(mainCtx, {
@@ -1768,6 +1794,12 @@
         // 查询按钮点击事件（简化版）
         document.getElementById('queryBtn').addEventListener('click', function() {
             const button = this;
+            
+            // 检查Chart.js是否加载完成
+            if (typeof Chart === 'undefined') {
+                alert('图表库正在加载中，请稍后再试...');
+                return;
+            }
             
             // 1. 简单的按钮状态变化
             button.textContent = '🔄 查询中...';
