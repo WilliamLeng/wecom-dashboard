@@ -926,10 +926,13 @@
                 📋 <strong>数据说明</strong>：2025年2-6月整体数据，支持动态环比分析 | 增长率排行显示选择月份所有指标的环比增长率排名 | 大区/分公司和同比数据暂未收集
             </div>
             <div id="dataRangeInfo" style="text-align: center; padding: 12px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; color: rgba(255, 255, 255, 0.8); font-size: 14px;">
-            📅 当前显示：<span id="currentRange">最近6个月 (2024年1月 - 2024年6月)</span>
-                <div style="font-size: 12px; margin-top: 6px; opacity: 0.7;">💡 修改筛选条件后，点击"查询数据"按钮更新图表</div>
+            📅 <span id="currentRange">请选择查询条件并点击"查询数据"按钮开始分析</span>
+                <div style="font-size: 12px; margin-top: 6px; opacity: 0.7;">💡 选择时间范围和结束月份，然后点击查询按钮展示数据</div>
             </div>
         </div>
+        
+        <!-- 数据内容区域（初始隐藏） -->
+        <div id="dataContent" style="display: none;">
         
         <!-- 核心指标卡片 -->
         <div class="metrics-grid">
@@ -1221,6 +1224,8 @@
             <p style="margin: 10px 0; opacity: 0.8;">一键下载完整数据报表，包含所有功能的详细统计</p>
             <button class="download-btn" onclick="downloadReport()">📥 下载Excel报表</button>
         </div>
+        
+        </div> <!-- dataContent结束 -->
     </div>
 
     <script>
@@ -1774,6 +1779,9 @@
                     console.log('开始执行updateDataRange...');
             updateDataRange();
                     
+                    // 显示数据内容区域
+                    document.getElementById('dataContent').style.display = 'block';
+                    
                     // 3. 恢复按钮状态
                     button.textContent = '🔍 查询数据';
                     button.disabled = false;
@@ -1906,8 +1914,8 @@
                 `${timeRange} (查询到2025年${endMonthName}) [显示：2025年${startMonth} - 2025年${endMonthName}，共${actualMonths.length}个月]`;
         }
         
-        // 页面加载时只初始化显示，不更新图表
-        initializeDataRange();
+        // 页面加载时不再自动初始化，等待用户点击查询
+        // initializeDataRange();
         
         // 强制重置所有环比为"—"（解决缓存问题）
         console.log('🔧 页面加载时强制重置所有环比');
