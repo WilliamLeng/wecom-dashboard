@@ -1,0 +1,2140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企微智慧导购数据仪表板 - WilliamLeng</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #2a1f3d 0%, #3d2c5f 50%, #2a1f3d 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* 水印背景纹理 */
+        .watermark-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 180px,
+                    rgba(255, 255, 255, 0.015) 180px,
+                    rgba(255, 255, 255, 0.015) 200px
+                );
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .watermark {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            background: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent 0,
+                    transparent 200px,
+                    rgba(139, 92, 246, 0.02) 200px,
+                    rgba(139, 92, 246, 0.02) 300px
+                ),
+                repeating-linear-gradient(
+                    -45deg,
+                    transparent 0,
+                    transparent 200px,
+                    rgba(99, 102, 241, 0.015) 200px,
+                    rgba(99, 102, 241, 0.015) 300px
+                );
+        }
+        
+
+        
+        .watermark::before {
+            content: '仅限方太内部使用';
+            position: absolute;
+            top: 48%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 42px;
+            font-weight: 600;
+            color: rgba(139, 92, 246, 0.25);
+            white-space: nowrap;
+            letter-spacing: 10px;
+            text-shadow: 0 0 30px rgba(139, 92, 246, 0.35);
+            user-select: none;
+            z-index: 999;
+        }
+        
+        .watermark::after {
+            content: '互联网应用技术部 产品管理模块 AI探索';
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 42px;
+            font-weight: 600;
+            color: rgba(99, 102, 241, 0.25);
+            white-space: nowrap;
+            letter-spacing: 10px;
+            text-shadow: 0 0 30px rgba(99, 102, 241, 0.35);
+            user-select: none;
+            z-index: 999;
+        }
+        
+        @keyframes watermark-pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* 详情弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #2a1f3d 0%, #3d2c5f 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 95vw;
+            max-height: 95vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            width: 1200px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 28px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #fff;
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .detail-metrics {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .detail-metrics.grid-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .detail-metrics.grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .detail-metrics.grid-4 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .detail-metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .detail-metric-title {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+        }
+
+        .detail-metric-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .detail-metric-change {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .detail-metric-change.positive {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+        }
+
+        .detail-metric-change.negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+
+        .detail-metric-change.neutral {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8B5CF6;
+        }
+
+        .detail-chart-section {
+            margin-top: 30px;
+        }
+
+        .detail-chart-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .detail-chart-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            height: 400px;
+        }
+
+        .modal-charts-grid {
+            display: grid;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .modal-charts-grid.grid-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .modal-charts-grid.grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .modal-charts-grid.grid-4 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .modal-charts-grid.grid-5 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .modal-charts-grid.grid-6 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .modal-charts-grid.grid-7 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .metric-chart-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .metric-chart-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .metric-chart-canvas {
+            height: 250px;
+            position: relative;
+        }
+
+        /* 详情页面布局增强 */
+        .detail-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            padding-bottom: 15px;
+        }
+
+        .detail-tab {
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .detail-tab.active {
+            background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .detail-tab:hover:not(.active) {
+            background: rgba(139, 92, 246, 0.2);
+            color: #fff;
+        }
+
+        .detail-content {
+            display: none;
+        }
+
+        .detail-content.active {
+            display: block;
+        }
+
+        .detail-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .detail-filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .detail-filter-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+
+        .detail-filter-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: #fff;
+            font-size: 13px;
+            min-width: 120px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .charts-grid.three-col {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .charts-grid.single-col {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .chart-card-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .chart-card-canvas {
+            height: 300px;
+        }
+
+
+        
+        /* 简约扫描线效果 */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.8), transparent);
+            animation: scan 4s ease-in-out infinite;
+            z-index: 1000;
+        }
+        
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100vh; opacity: 0; }
+        }
+        
+        .header {
+            background: 
+                linear-gradient(135deg, rgba(20, 14, 35, 0.98) 0%, rgba(42, 31, 61, 0.95) 25%, rgba(61, 44, 95, 0.95) 50%, rgba(42, 31, 61, 0.95) 75%, rgba(20, 14, 35, 0.98) 100%),
+                radial-gradient(ellipse at 15% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 85% 80%, rgba(99, 102, 241, 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 70%),
+                conic-gradient(from 0deg at 20% 30%, transparent 0deg, rgba(139, 92, 246, 0.03) 60deg, transparent 120deg),
+                conic-gradient(from 180deg at 80% 70%, transparent 0deg, rgba(99, 102, 241, 0.03) 60deg, transparent 120deg),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><pattern id="tech-grid" patternUnits="userSpaceOnUse" width="40" height="40"><circle cx="20" cy="20" r="1.5" fill="rgba(139,92,246,0.15)"/><circle cx="10" cy="10" r="0.8" fill="rgba(99,102,241,0.1)"/><circle cx="30" cy="30" r="0.8" fill="rgba(99,102,241,0.1)"/><path d="M15,15 L25,25 M25,15 L15,25" stroke="rgba(139,92,246,0.08)" stroke-width="0.5"/><rect x="18" y="18" width="4" height="4" rx="1" fill="none" stroke="rgba(6,182,212,0.1)" stroke-width="0.3"/></pattern></defs><rect width="100%" height="100%" fill="url(%23tech-grid)"/></svg>');
+            backdrop-filter: blur(25px);
+            padding: 32px 24px;
+            border-bottom: 2px solid transparent;
+            border-image: linear-gradient(90deg, rgba(139, 92, 246, 0.4), rgba(6, 182, 212, 0.3), rgba(99, 102, 241, 0.4), rgba(6, 182, 212, 0.3), rgba(139, 92, 246, 0.4)) 1;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(45deg, transparent 40%, rgba(139, 92, 246, 0.08) 50%, transparent 60%),
+                linear-gradient(-45deg, transparent 40%, rgba(99, 102, 241, 0.06) 50%, transparent 60%),
+                linear-gradient(90deg, transparent 0%, rgba(6, 182, 212, 0.03) 50%, transparent 100%);
+            pointer-events: none;
+            animation: header-shimmer 8s ease-in-out infinite;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(ellipse at center, transparent 30%, rgba(139, 92, 246, 0.03) 40%, transparent 70%),
+                conic-gradient(from 0deg, transparent, rgba(6, 182, 212, 0.02), transparent, rgba(99, 102, 241, 0.02), transparent);
+            animation: header-rotate 20s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        @keyframes header-shimmer {
+            0%, 100% { opacity: 0.5; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(10px); }
+        }
+        
+        @keyframes header-rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .header h1 {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 25%, #c7d2fe 50%, #e0e7ff 75%, #ffffff 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 3;
+            text-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+        
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 3;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        select {
+            background: rgba(61, 44, 95, 0.6);
+            border: 1px solid rgba(156, 163, 175, 0.3);
+            color: #ffffff;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        
+        select:hover {
+            background: rgba(61, 44, 95, 0.8);
+            border-color: rgba(156, 163, 175, 0.5);
+        }
+        
+        select:focus {
+            border-color: rgba(99, 102, 241, 0.8);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .metric-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .metric-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 12px;
+        }
+        
+        .metric-value {
+            font-size: 36px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+        
+        .metric-change {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .positive { 
+            color: #10B981; 
+        }
+        
+        .negative { 
+            color: #EF4444; 
+        }
+        
+        .neutral { 
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .chart-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .chart-container {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            height: 400px;
+        }
+        
+        .features-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
+        }
+        
+        .feature-card::after {
+            content: '点击查看详情 →';
+            position: absolute;
+            bottom: 12px;
+            right: 15px;
+            font-size: 11px;
+            color: rgba(139, 92, 246, 0.6);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .feature-card:hover::after {
+            opacity: 1;
+        }
+
+        /* 更多功能卡片不显示点击提示 */
+        .feature-card[data-placeholder]::after {
+            content: none;
+        }
+        
+        .feature-card[data-placeholder] {
+            cursor: default;
+        }
+        
+        .feature-card[data-placeholder]:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .feature-card.growing {
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.03);
+        }
+        
+        .feature-card.declining {
+            border-color: rgba(239, 68, 68, 0.4);
+            background: rgba(239, 68, 68, 0.03);
+        }
+        
+        .feature-card.stable {
+            border-color: rgba(139, 92, 246, 0.4);
+            background: rgba(139, 92, 246, 0.03);
+        }
+        
+        .feature-header {
+            margin-bottom: 16px;
+        }
+        
+        .feature-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+
+
+        .feature-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            border-left: 3px solid rgba(139, 92, 246, 0.5);
+        }
+
+        .metric-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+        }
+
+        .metric-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metric-value {
+            font-size: 14px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .metric-change {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .metric-change.positive {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+        }
+
+        .metric-change.negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+
+        .metric-change.neutral {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8B5CF6;
+        }
+        
+        .mini-chart {
+            height: 80px;
+            margin: 12px 0;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            padding: 8px;
+        }
+        
+        .download-section {
+            text-align: center;
+            margin-top: 32px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+        }
+        
+        .download-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 12px;
+        }
+        
+        .download-btn {
+            background: rgb(139, 92, 246);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        
+        .download-btn:hover {
+            background: rgb(124, 58, 237);
+            transform: translateY(-1px);
+        }
+        
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .features-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 水印层 -->
+    <div class="watermark-bg"></div>
+    <div class="watermark"></div>
+    
+    <div class="header">
+        <h1>🏠 方太厨电·企微智慧导购数据中心</h1>
+        <div class="filters">
+            <div class="filter-group">
+                <div class="filter-label">数据周期</div>
+                <select id="timeRange">
+                    <option>最近3个月</option>
+                    <option selected>最近6个月</option>
+                    <option>最近12个月</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <div class="filter-label">结束月份</div>
+                <select id="endMonth">
+                    <option value="2024-06" selected>2024年6月</option>
+                    <option value="2024-05">2024年5月</option>
+                    <option value="2024-04">2024年4月</option>
+                    <option value="2024-03">2024年3月</option>
+                    <option value="2024-02">2024年2月</option>
+                    <option value="2024-01">2024年1月</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <div class="filter-label">组织层级</div>
+                <select id="orgLevel">
+                    <option>整体</option>
+                    <option>大区</option>
+                    <option>分公司</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <div class="filter-label">对比维度</div>
+                <select id="compareType">
+                    <option>环比</option>
+                    <option>同比</option>
+                    <option>绝对值</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 当前数据范围提示 -->
+        <div id="dataRangeInfo" style="text-align: center; margin-bottom: 20px; padding: 12px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; color: rgba(255, 255, 255, 0.8); font-size: 14px;">
+            📅 当前显示：<span id="currentRange">最近6个月 (2024年1月 - 2024年6月)</span>
+        </div>
+        
+        <!-- 核心指标卡片 -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-title">💼 企微开通人数</div>
+                <div class="metric-value">33,824</div>
+                <div class="metric-change neutral">📊 环比 0%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">🔐 企微登录人数</div>
+                <div class="metric-value">29,247</div>
+                <div class="metric-change positive">📈 环比 +1%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">🛍️ 智慧导购访问</div>
+                <div class="metric-value">13,434</div>
+                <div class="metric-change positive">📈 环比 +1%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">⚡ 智慧导购使用</div>
+                <div class="metric-value">10,999</div>
+                <div class="metric-change positive">📈 环比 +8%</div>
+            </div>
+        </div>
+
+        <!-- 主趋势图 -->
+        <div class="chart-section">
+            <div class="section-title">📈 核心指标趋势分析</div>
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <canvas id="mainTrendChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户活跃度分析 -->
+        <div class="chart-section">
+            <div class="section-title">📊 用户活跃度分析</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="chart-container">
+                    <canvas id="dailyActiveChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="monthlyActiveChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 功能模块分析 -->
+        <div class="chart-section">
+            <div class="section-title">🎯 功能模块使用情况</div>
+            <div class="features-section">
+                <div class="feature-card growing">
+                    <div class="feature-header">
+                        <div class="feature-title">🏥 厨房健康检测</div>
+                    </div>
+                    <div class="feature-metrics">
+                        <div class="metric-item">
+                            <div class="metric-label">使用人数</div>
+                            <div class="metric-right">
+                                <div class="metric-value">6,222</div>
+                                <div class="metric-change positive">+41%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">创建数量</div>
+                            <div class="metric-right">
+                                <div class="metric-value">76,320</div>
+                                <div class="metric-change positive">+75%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">分享次数</div>
+                            <div class="metric-right">
+                                <div class="metric-value">27,549</div>
+                                <div class="metric-change positive">+175%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card growing">
+                    <div class="feature-header">
+                        <div class="feature-title">💬 欢迎语管理</div>
+                    </div>
+                    <div class="feature-metrics">
+                        <div class="metric-item">
+                            <div class="metric-label">已触发好友数</div>
+                            <div class="metric-right">
+                                <div class="metric-value">1,190,926</div>
+                                <div class="metric-change positive">+86%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">打开数</div>
+                            <div class="metric-right">
+                                <div class="metric-value">363,798</div>
+                                <div class="metric-change positive">+38%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">打开率</div>
+                            <div class="metric-right">
+                                <div class="metric-value">31%</div>
+                                <div class="metric-change negative">-3%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card growing">
+                    <div class="feature-header">
+                        <div class="feature-title">👥 朋友圈管理</div>
+                    </div>
+                    <div class="feature-metrics">
+                        <div class="metric-item">
+                            <div class="metric-label">应执行员工人次</div>
+                            <div class="metric-right">
+                                <div class="metric-value">1,796,130</div>
+                                <div class="metric-change positive">+24%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">已执行员工人次</div>
+                            <div class="metric-right">
+                                <div class="metric-value">95,860</div>
+                                <div class="metric-change negative">-34%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">执行率</div>
+                            <div class="metric-right">
+                                <div class="metric-value">5.3%</div>
+                                <div class="metric-change negative">-47%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card declining">
+                    <div class="feature-header">
+                        <div class="feature-title">🛒 选购指南</div>
+                    </div>
+                    <div class="feature-metrics">
+                        <div class="metric-item">
+                            <div class="metric-label">使用人数</div>
+                            <div class="metric-right">
+                                <div class="metric-value">176</div>
+                                <div class="metric-change negative">-7%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">创建+更新数量</div>
+                            <div class="metric-right">
+                                <div class="metric-value">375</div>
+                                <div class="metric-change negative">-14%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">分享数量</div>
+                            <div class="metric-right">
+                                <div class="metric-value">320</div>
+                                <div class="metric-change positive">+62%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card declining">
+                    <div class="feature-header">
+                        <div class="feature-title">🤖 AI问答</div>
+                    </div>
+                    <div class="feature-metrics">
+                        <div class="metric-item">
+                            <div class="metric-label">使用人数</div>
+                            <div class="metric-right">
+                                <div class="metric-value">917</div>
+                                <div class="metric-change negative">-32%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">使用人次</div>
+                            <div class="metric-right">
+                                <div class="metric-value">2,591</div>
+                                <div class="metric-change negative">-93%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">平均使用次数</div>
+                            <div class="metric-right">
+                                <div class="metric-value">2.8</div>
+                                <div class="metric-change negative">-91%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card declining">
+                    <div class="feature-header">
+                        <div class="feature-title">🏪 门店活动</div>
+                    </div>
+                    <div class="feature-metrics">
+                        <div class="metric-item">
+                            <div class="metric-label">创建数量</div>
+                            <div class="metric-right">
+                                <div class="metric-value">10</div>
+                                <div class="metric-change negative">-38%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">审核通过数量</div>
+                            <div class="metric-right">
+                                <div class="metric-value">3</div>
+                                <div class="metric-change negative">-81%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">浏览量</div>
+                            <div class="metric-right">
+                                <div class="metric-value">0</div>
+                                <div class="metric-change negative">-100%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card growing">
+                    <div class="feature-header">
+                        <div class="feature-title">🏠 厨房案例</div>
+                    </div>
+                    <div class="feature-metrics">
+                        <div class="metric-item">
+                            <div class="metric-label">总数量</div>
+                            <div class="metric-right">
+                                <div class="metric-value">5,260</div>
+                                <div class="metric-change positive">+32%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">分享量</div>
+                            <div class="metric-right">
+                                <div class="metric-value">19,889</div>
+                                <div class="metric-change positive">+127%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card growing">
+                    <div class="feature-header">
+                        <div class="feature-title">🎯 用户服务卡</div>
+                    </div>
+                    <div class="feature-metrics">
+                        <div class="metric-item">
+                            <div class="metric-label">分享人数</div>
+                            <div class="metric-right">
+                                <div class="metric-value">285</div>
+                                <div class="metric-change neutral">0%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">分享人次</div>
+                            <div class="metric-right">
+                                <div class="metric-value">2,398</div>
+                                <div class="metric-change positive">+446%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">NPS人数</div>
+                            <div class="metric-right">
+                                <div class="metric-value">252</div>
+                                <div class="metric-change positive">+196%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">NPS评分</div>
+                            <div class="metric-right">
+                                <div class="metric-value">9.888</div>
+                                <div class="metric-change neutral">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card stable" data-placeholder="true" style="border: 2px dashed rgba(139, 92, 246, 0.4); background: rgba(139, 92, 246, 0.02);">
+                    <div class="feature-header">
+                        <div class="feature-title">➕ 更多功能</div>
+                    </div>
+                    <div style="height: 120px; margin: 12px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.02); border-radius: 6px; padding: 16px; text-align: center;">
+                        <div style="color: rgba(255, 255, 255, 0.6); font-size: 14px; margin-bottom: 8px;">🚀 即将推出更多智能功能</div>
+                        <div style="color: rgba(255, 255, 255, 0.4); font-size: 12px;">新功能模块将在此展示<br/>支持功能扩展 | 持续优化中</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 下载报表区域 -->
+        <div class="download-section">
+            <h3>📊 导出数据报表</h3>
+            <p style="margin: 10px 0; opacity: 0.8;">一键下载完整数据报表，包含所有功能的详细统计</p>
+            <button class="download-btn" onclick="downloadReport()">📥 下载Excel报表</button>
+        </div>
+    </div>
+
+    <script>
+        // 主趋势图
+        const mainCtx = document.getElementById('mainTrendChart').getContext('2d');
+        new Chart(mainCtx, {
+            type: 'line',
+            data: {
+                labels: ['2月', '3月', '4月', '5月', '6月'],
+                datasets: [{
+                    label: '企微开通人数',
+                    data: [30990, 31734, 32913, 33672, 33824],
+                    borderColor: '#06B6D4',
+                    backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#06B6D4',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }, {
+                    label: '企微登录人数',
+                    data: [20926, 22941, 27823, 29051, 29247],
+                    borderColor: '#8B5CF6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#8B5CF6',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }, {
+                    label: '智慧导购访问',
+                    data: [6489, 8104, 11436, 13285, 13434],
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#10B981',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }, {
+                    label: '智慧导购使用',
+                    data: [4517, 5848, 8254, 10179, 10999],
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#F59E0B',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '核心指标月度趋势',
+                        color: '#ffffff',
+                        font: { size: 16 }
+                    },
+                    legend: {
+                        labels: {
+                            color: '#ffffff',
+                            usePointStyle: true
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { 
+                            color: '#ffffff',
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#ffffff' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                }
+            }
+        });
+
+        // 增长率图表 - 显示具体指标增长率排名
+        const growthCtx = document.getElementById('growthChart').getContext('2d');
+        new Chart(growthCtx, {
+            type: 'bar',
+            data: {
+                labels: ['用户服务卡-分享人次', '用户服务卡-NPS人数', '厨房健康检测-分享次数', '厨房案例-分享量', '欢迎语-触发好友数'],
+                datasets: [{
+                    label: '增长率 (%)',
+                    data: [446, 196, 175, 127, 86],
+                    backgroundColor: [
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(6, 182, 212, 0.8)',
+                        'rgba(139, 92, 246, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(236, 72, 153, 0.8)'
+                    ],
+                    borderColor: [
+                        '#10B981',
+                        '#06B6D4',
+                        '#8B5CF6',
+                        '#F59E0B',
+                        '#EC4899'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '核心指标增长率排行',
+                        color: '#ffffff',
+                        font: { size: 16 }
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { 
+                            color: '#ffffff',
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#ffffff' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                }
+            }
+        });
+
+        // 日活趋势图
+        const dailyActiveCtx = document.getElementById('dailyActiveChart').getContext('2d');
+        new Chart(dailyActiveCtx, {
+            type: 'line',
+            data: {
+                labels: ['2月', '3月', '4月', '5月', '6月'],
+                datasets: [{
+                    label: '全体日活',
+                    data: [1075, 1572, 1965, 2637, 2904],
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#10B981',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }, {
+                    label: '三类人员日活',
+                    data: [884, 1279, 1604, 2171, 2411],
+                    borderColor: '#06B6D4',
+                    backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#06B6D4',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '日活用户数趋势',
+                        color: '#ffffff',
+                        font: { size: 16 }
+                    },
+                    legend: {
+                        labels: {
+                            color: '#ffffff',
+                            usePointStyle: true
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { 
+                            color: '#ffffff',
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#ffffff' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                }
+            }
+        });
+
+        // 月活趋势图
+        const monthlyActiveCtx = document.getElementById('monthlyActiveChart').getContext('2d');
+        new Chart(monthlyActiveCtx, {
+            type: 'line',
+            data: {
+                labels: ['2月', '3月', '4月', '5月', '6月'],
+                datasets: [{
+                    label: '全体月活',
+                    data: [6488, 8102, 11434, 13283, 13434],
+                    borderColor: '#8B5CF6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#8B5CF6',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }, {
+                    label: '三类人员月活',
+                    data: [4949, 6181, 8545, 9818, 10223],
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#F59E0B',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: '月活用户数趋势',
+                        color: '#ffffff',
+                        font: { size: 16 }
+                    },
+                    legend: {
+                        labels: {
+                            color: '#ffffff',
+                            usePointStyle: true
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { 
+                            color: '#ffffff',
+                            callback: function(value) {
+                                return value.toLocaleString();
+                            }
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: '#ffffff' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                }
+            }
+        });
+
+
+
+        // 下载报表功能
+        function downloadReport() {
+            alert('📊 正在生成Excel报表...\n\n包含以下数据：\n• 核心指标月度趋势\n• 各功能详细使用统计\n• 用户活跃度分析（日活/月活）\n• 厨房健康检测和案例数据\n• 用户服务卡和NPS评分\n• 朋友圈管理和欢迎语\n• AI问答和选购指南\n• 门店活动数据\n• 同比环比分析');
+        }
+
+        // 筛选器交互逻辑
+        document.getElementById('timeRange').addEventListener('change', function() {
+            updateDataRange();
+        });
+        
+        document.getElementById('endMonth').addEventListener('change', function() {
+            updateDataRange();
+        });
+        
+        function updateDataRange() {
+            const timeRange = document.getElementById('timeRange').value;
+            const endMonth = document.getElementById('endMonth').value;
+            
+            // 计算显示的月份范围
+            let monthsToShow = 6; // 默认6个月
+            if (timeRange.includes('3个月')) monthsToShow = 3;
+            if (timeRange.includes('12个月')) monthsToShow = 12;
+            
+            // 计算开始月份
+            const endDate = new Date(endMonth + '-01');
+            const startDate = new Date(endDate);
+            startDate.setMonth(startDate.getMonth() - (monthsToShow - 1));
+            
+            // 格式化日期显示
+            const startText = `${startDate.getFullYear()}年${startDate.getMonth() + 1}月`;
+            const endText = `${endDate.getFullYear()}年${endDate.getMonth() + 1}月`;
+            
+            // 更新页面显示
+            document.getElementById('currentRange').textContent = 
+                `${timeRange} (${startText} - ${endText})`;
+            
+            console.log(`显示数据范围：${timeRange}，截止到${endMonth}`);
+            console.log(`具体范围：${startText} - ${endText}`);
+            
+            // 可以在这里添加实际的图表更新逻辑
+            // 比如重新生成图表数据，更新图表显示等
+        }
+        
+        // 简单的交互效果
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const title = this.querySelector('.feature-title').textContent;
+                alert(`📊 ${title} 详细数据\n\n点击功能卡片可以查看该功能的详细子指标分析，包括：\n• 各项数据的详细趋势\n• 用户行为分析\n• 地区分布情况\n• 优化建议`);
+            });
+        });
+        
+        // 组织层级和对比维度的交互
+        document.getElementById('orgLevel').addEventListener('change', function() {
+            const level = this.value;
+            console.log(`切换到组织层级：${level}`);
+            // 这里可以添加相应的数据筛选逻辑
+        });
+        
+        document.getElementById('compareType').addEventListener('change', function() {
+            const type = this.value;
+            console.log(`切换对比维度：${type}`);
+            // 这里可以添加相应的对比数据显示逻辑
+        });
+        
+        // 页面加载时初始化数据范围显示
+        updateDataRange();
+
+    // 详情弹窗功能
+    const moduleDetails = {
+        '厨房健康检测': {
+            title: '🏥 厨房健康检测详情',
+            metrics: [
+                { title: '使用人数', value: '6,222', change: '+41%', type: 'positive' },
+                { title: '创建数量', value: '76,320', change: '+75%', type: 'positive' },
+                { title: '分享次数', value: '27,549', change: '+175%', type: 'positive' }
+            ],
+            chartData: {
+                labels: ['2月', '3月', '4月', '5月', '6月'],
+                datasets: [
+                    {
+                        label: '使用人数',
+                        data: [1168, 1869, 2995, 4410, 6222],
+                        borderColor: '#06B6D4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '创建数量',
+                        data: [5615, 15504, 26161, 43693, 76320],
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '分享次数',
+                        data: [3276, 8663, 12060, 10028, 27549],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            }
+        },
+        '选购指南': {
+            title: '🛒 选购指南详情',
+            metrics: [
+                { title: '使用人数', value: '176', change: '-7%', type: 'negative' },
+                { title: '创建+更新数量', value: '375', change: '-14%', type: 'negative' },
+                { title: '分享数量', value: '320', change: '+62%', type: 'positive' }
+            ],
+            chartData: {
+                labels: ['2月', '3月', '4月', '5月', '6月'],
+                datasets: [
+                    {
+                        label: '使用人数',
+                        data: [75, 68, 149, 190, 176],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '创建+更新数量',
+                        data: [125, 261, 317, 438, 375],
+                        borderColor: '#EC4899',
+                        backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '分享数量',
+                        data: [112, 231, 248, 198, 320],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            }
+        },
+        '朋友圈管理': {
+            title: '👥 朋友圈管理详情',
+            metrics: [
+                { title: '创建数量', value: '195', change: '+8%', type: 'positive' },
+                { title: '应执行员工人次', value: '1,796,130', change: '+24%', type: 'positive' },
+                { title: '已执行员工人次', value: '95,860', change: '+14%', type: 'positive' },
+                { title: '员工执行率', value: '5.3%', change: '-8%', type: 'negative' },
+                { title: '触达顾客次数', value: '9,581,610', change: '+61%', type: 'positive' }
+            ],
+            chartData: {
+                labels: ['2月', '3月', '4月', '5月', '6月'],
+                datasets: [
+                    {
+                        label: '创建数量',
+                        data: [96, 170, 123, 180, 195],
+                        borderColor: '#06B6D4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '应执行员工人次',
+                        data: [998340, 1456890, 1389120, 1448290, 1796130],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '已执行员工人次',
+                        data: [29950, 39261, 65338, 84003, 95860],
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '员工执行率(%)',
+                        data: [3, 2.7, 4.7, 5.8, 5.3],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '触达顾客次数',
+                        data: [4789000, 6234000, 7456000, 8912000, 9581610],
+                        borderColor: '#EC4899',
+                        backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            }
+        },
+        '门店活动': {
+            title: '🏪 门店活动详情',
+            metrics: [
+                { title: '创建数量', value: '10', change: '-38%', type: 'negative' },
+                { title: '审核通过数量', value: '3', change: '-73%', type: 'negative' },
+                { title: '浏览量', value: '0', change: '-100%', type: 'negative' },
+                { title: '转发数', value: '0', change: '-100%', type: 'negative' },
+                { title: '线索数', value: '1', change: '0%', type: 'neutral' },
+                { title: '订单数', value: '0', change: '0%', type: 'neutral' }
+            ],
+            chartData: {
+                labels: ['2月', '3月', '4月', '5月', '6月'],
+                datasets: [
+                    {
+                        label: '创建数量',
+                        data: [5, 1, 13, 16, 10],
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '审核通过数量',
+                        data: [2, 0, 6, 11, 3],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '浏览量',
+                        data: [43, 1, 21, 87, 0],
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '转发数',
+                        data: [12, 0, 8, 23, 0],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '线索数',
+                        data: [3, 0, 2, 4, 1],
+                        borderColor: '#06B6D4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '订单数',
+                        data: [1, 0, 0, 1, 0],
+                        borderColor: '#EC4899',
+                        backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            }
+        },
+        '欢迎语': {
+            title: '👋 欢迎语详情',
+            metrics: [
+                { title: '创建条数(累计)', value: '603', change: '+18%', type: 'positive' },
+                { title: '已触发好友数(累计)', value: '1,190,926', change: '+86%', type: 'positive' },
+                { title: '打开数(累计)', value: '363,798', change: '+22%', type: 'positive' },
+                { title: '打开率(累计)', value: '31%', change: '-34%', type: 'negative' },
+                { title: '产生线索数(累计)', value: '45,069', change: '+18%', type: 'positive' },
+                { title: '线索产生率(累计)', value: '12.39%', change: '-4%', type: 'negative' },
+                { title: '成交线索数(累计)', value: '2,899', change: '+15%', type: 'positive' }
+            ],
+            chartData: {
+                labels: ['2月', '3月', '4月', '5月', '6月'],
+                datasets: [
+                    {
+                        label: '创建条数(累计)',
+                        data: [380, 389, 447, 513, 603],
+                        borderColor: '#06B6D4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '已触发好友数(累计)',
+                        data: [640000, 780000, 890000, 1020000, 1190926],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '打开数(累计)',
+                        data: [195000, 238000, 267000, 295000, 363798],
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '打开率(%)',
+                        data: [65, 65, 58, 46, 31],
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '产生线索数(累计)',
+                        data: [25000, 30000, 34500, 38200, 45069],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '线索产生率(%)',
+                        data: [12.79, 12.91, 12.94, 12.87, 12.39],
+                        borderColor: '#EC4899',
+                        backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '成交线索数(累计)',
+                        data: [1890, 2123, 2398, 2520, 2899],
+                        borderColor: '#14B8A6',
+                        backgroundColor: 'rgba(20, 184, 166, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            }
+        },
+        '厨房案例': {
+            title: '🍳 厨房案例详情',
+            metrics: [
+                { title: '总数量', value: '5,260', change: '+32%', type: 'positive' },
+                { title: '分享量', value: '19,889', change: '-15%', type: 'negative' }
+            ],
+            chartData: {
+                labels: ['2月', '3月', '4月', '5月', '6月'],
+                datasets: [
+                    {
+                        label: '总数量',
+                        data: [3981, 3982, 3982, 3982, 5260],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '分享量',
+                        data: [8790, 13376, 15193, 23377, 19889],
+                        borderColor: '#EC4899',
+                        backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            }
+        },
+        'AI问答': {
+            title: '🤖 AI问答详情',
+            metrics: [
+                { title: '使用人数', value: '917', change: '-32%', type: 'negative' },
+                { title: '使用人次', value: '2,591', change: '-27%', type: 'negative' }
+            ],
+            chartData: {
+                labels: ['2月', '3月', '4月', '5月', '6月'],
+                datasets: [
+                    {
+                        label: '使用人数',
+                        data: [76, 609, 1244, 1341, 917],
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '使用人次',
+                        data: [369, 1857, 3543, 3568, 2591],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            }
+        },
+        '用户服务卡': {
+            title: '🎯 用户服务卡详情',
+            metrics: [
+                { title: '分享人数', value: '285', change: '0%', type: 'neutral' },
+                { title: '分享人次', value: '2,398', change: '+446%', type: 'positive' },
+                { title: 'NPS人数', value: '252', change: '+196%', type: 'positive' },
+                { title: 'NPS评分', value: '9.888', change: '0%', type: 'neutral' }
+            ],
+            chartData: {
+                labels: ['4月', '5月', '6月'],
+                datasets: [
+                    {
+                        label: '分享人数',
+                        data: [85, 108, 285],
+                        borderColor: '#06B6D4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '分享人次',
+                        data: [558, 439, 2398],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'NPS人数',
+                        data: [98, 85, 252],
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'NPS评分',
+                        data: [9.5, 9.7, 9.888],
+                        borderColor: '#EC4899',
+                        backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            }
+        }
+    };
+
+    // 为功能卡片添加点击事件
+    function addFeatureCardClickEvents() {
+        const featureCards = document.querySelectorAll('.feature-card');
+        featureCards.forEach(card => {
+            // 跳过占位符卡片
+            if (card.hasAttribute('data-placeholder')) {
+                return;
+            }
+            
+            card.addEventListener('click', function() {
+                const titleElement = this.querySelector('.feature-title');
+                if (!titleElement) return;
+                
+                const title = titleElement.textContent.trim();
+                let moduleName = '';
+                
+                if (title.includes('厨房健康检测')) moduleName = '厨房健康检测';
+                else if (title.includes('选购指南')) moduleName = '选购指南';
+                else if (title.includes('朋友圈')) moduleName = '朋友圈管理';
+                else if (title.includes('门店活动')) moduleName = '门店活动';
+                else if (title.includes('欢迎语')) moduleName = '欢迎语';
+                else if (title.includes('厨房案例')) moduleName = '厨房案例';
+                else if (title.includes('AI问答')) moduleName = 'AI问答';
+                else if (title.includes('用户服务卡')) moduleName = '用户服务卡';
+                
+                if (moduleName && moduleDetails[moduleName]) {
+                    showModuleDetail(moduleName);
+                }
+            });
+        });
+    }
+
+    // 显示模块详情
+    function showModuleDetail(moduleName) {
+        const detail = moduleDetails[moduleName];
+        const modal = document.getElementById('moduleDetailModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalChartsGrid = document.getElementById('modalChartsGrid');
+
+        // 设置标题
+        modalTitle.textContent = detail.title;
+
+        // 生成多个独立图表
+        modalChartsGrid.innerHTML = detail.chartData.datasets.map((dataset, index) => `
+            <div class="metric-chart-card">
+                <div class="metric-chart-title">${dataset.label}</div>
+                <div class="metric-chart-canvas">
+                    <canvas id="metricChart${index}"></canvas>
+                </div>
+            </div>
+        `).join('');
+
+        // 设置网格布局
+        const chartCount = detail.chartData.datasets.length;
+        modalChartsGrid.className = `modal-charts-grid grid-${chartCount}`;
+
+        // 显示模态框
+        modal.style.display = 'flex';
+
+        // 创建每个独立图表
+        setTimeout(() => {
+            detail.chartData.datasets.forEach((dataset, index) => {
+                const canvas = document.getElementById(`metricChart${index}`);
+                if (canvas) {
+                    createSingleMetricChart(canvas, {
+                        labels: detail.chartData.labels,
+                        data: dataset.data,
+                        label: dataset.label,
+                        borderColor: dataset.borderColor,
+                        backgroundColor: dataset.backgroundColor
+                    });
+                }
+            });
+        }, 100);
+    }
+
+
+
+    // 创建详情图表
+    function createDetailChart(canvas, chartData) {
+        // 如果已有图表实例，先销毁
+        if (canvas.chartInstance) {
+            canvas.chartInstance.destroy();
+        }
+
+        canvas.chartInstance = new Chart(canvas, {
+            type: 'line',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: '#fff',
+                            font: { size: 12 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(139, 92, 246, 0.5)',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        ticks: { color: '#fff', font: { size: 11 } },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    y: {
+                        display: true,
+                        ticks: { 
+                            color: '#fff', 
+                            font: { size: 11 },
+                            callback: function(value) {
+                                if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                                if (value >= 1000) return (value / 1000).toFixed(1) + 'K';
+                                return value;
+                            }
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                },
+                elements: {
+                    point: { radius: 4, hoverRadius: 6 },
+                    line: { borderWidth: 2 }
+                }
+            }
+        });
+    }
+
+    // 创建单个指标图表
+    function createSingleMetricChart(canvas, metricData) {
+        // 如果已有图表实例，先销毁
+        if (canvas.chartInstance) {
+            canvas.chartInstance.destroy();
+        }
+
+        canvas.chartInstance = new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: metricData.labels,
+                datasets: [{
+                    label: metricData.label,
+                    data: metricData.data,
+                    borderColor: metricData.borderColor,
+                    backgroundColor: metricData.backgroundColor,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    borderWidth: 3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: metricData.borderColor,
+                        borderWidth: 1,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { 
+                            color: 'rgba(255, 255, 255, 0.7)', 
+                            font: { size: 11 }
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    y: {
+                        ticks: { 
+                            color: 'rgba(255, 255, 255, 0.7)', 
+                            font: { size: 11 },
+                            callback: function(value) {
+                                if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                                if (value >= 1000) return (value / 1000).toFixed(1) + 'K';
+                                return value;
+                            }
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                }
+            }
+        });
+    }
+
+    // 关闭模态框
+    function closeModal() {
+        const modal = document.getElementById('moduleDetailModal');
+        modal.style.display = 'none';
+        
+        // 销毁所有图表实例
+        const modalChartsGrid = document.getElementById('modalChartsGrid');
+        if (modalChartsGrid) {
+            const canvases = modalChartsGrid.querySelectorAll('canvas');
+            canvases.forEach(canvas => {
+                if (canvas.chartInstance) {
+                    canvas.chartInstance.destroy();
+                    canvas.chartInstance = null;
+                }
+            });
+        }
+    }
+
+    // 页面加载完成后添加事件监听
+    setTimeout(() => {
+        addFeatureCardClickEvents();
+        
+        // 为关闭按钮添加事件
+        const closeButton = document.getElementById('closeModal');
+        if (closeButton) {
+            closeButton.addEventListener('click', closeModal);
+        }
+        
+        // 点击遮罩层关闭
+        const modalOverlay = document.getElementById('moduleDetailModal');
+        if (modalOverlay) {
+            modalOverlay.addEventListener('click', function(e) {
+                if (e.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+        }
+    }, 1000);
+    </script>
+
+<!-- 详情弹窗 -->
+<div id="moduleDetailModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle" class="modal-title"></h2>
+            <button id="closeModal" class="modal-close">&times;</button>
+        </div>
+        
+        <!-- 分项趋势图表 -->
+        <div class="detail-chart-section">
+            <h3 class="detail-chart-title">各项指标趋势分析</h3>
+            <div id="modalChartsGrid" class="modal-charts-grid">
+                <!-- 动态生成多个图表 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
