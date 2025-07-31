@@ -25,7 +25,7 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #2a1f3d 0%, #3d2c5f 50%, #2a1f3d 100%);
@@ -570,6 +570,26 @@
             padding: 20px;
         }
         
+        /* 确保所有主要容器不会重叠 */
+        .core-metrics-section,
+        .chart-section {
+            width: 100%;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+            float: none;
+            position: relative;
+        }
+        
+        /* 全局容器清理 */
+        .container::after,
+        #dataContent::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -577,11 +597,100 @@
             margin-bottom: 32px;
         }
         
+        /* 新的核心指标布局样式 */
+        .core-metrics-section {
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 32px 32px 50px 32px;
+            position: relative;
+            z-index: 1;
+            clear: both;
+            width: 100%;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            box-sizing: border-box;
+            overflow: visible;
+        }
+        
+        .core-metrics-container {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 30px;
+            align-items: stretch;
+            height: 420px;
+            overflow: visible;
+            width: 100%;
+            position: relative;
+        }
+        
+        .metrics-cards-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            height: 100%;
+        }
+        
+        .metrics-cards-column .metric-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 90px;
+        }
+        
+        .trend-chart-column {
+            height: 100%;
+            padding: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 1200px) {
+            .core-metrics-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                height: auto;
+            }
+            .metrics-cards-column {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+                gap: 12px;
+                height: 200px;
+                margin-bottom: 20px;
+            }
+            .metrics-cards-column .metric-card {
+                flex: none;
+                min-height: 90px;
+            }
+            .trend-chart-column {
+                height: 420px;
+            }
+            .core-metrics-section {
+                margin-bottom: 30px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .metrics-cards-column {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(4, 1fr);
+                height: 320px;
+            }
+            .trend-chart-column {
+                height: 350px;
+            }
+        }
+        
         .metric-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            padding: 24px;
+            padding: 16px;
             text-align: center;
             transition: all 0.2s ease;
             backdrop-filter: blur(10px);
@@ -598,14 +707,14 @@
             font-size: 14px;
             font-weight: 500;
             color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
         
         .metric-value {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 600;
             color: #ffffff;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             line-height: 1;
         }
         
@@ -626,12 +735,55 @@
             color: rgba(255, 255, 255, 0.6);
         }
         
+        /* 核心指标卡片颜色对应趋势图线条 */
+        .metric-card-cyan {
+            border-left: 4px solid #22d3ee;
+        }
+        .metric-card-cyan:hover {
+            border-color: #22d3ee;
+            box-shadow: 0 8px 32px rgba(34, 211, 238, 0.2);
+        }
+        
+        .metric-card-purple {
+            border-left: 4px solid #a855f7;
+        }
+        .metric-card-purple:hover {
+            border-color: #a855f7;
+            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.2);
+        }
+        
+        .metric-card-green {
+            border-left: 4px solid #10b981;
+        }
+        .metric-card-green:hover {
+            border-color: #10b981;
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.2);
+        }
+        
+        .metric-card-red {
+            border-left: 4px solid #ff0000;
+        }
+        .metric-card-red:hover {
+            border-color: #ff0000;
+            box-shadow: 0 8px 32px rgba(255, 0, 0, 0.3);
+        }
+        
         .chart-section {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
             padding: 32px;
-            margin-bottom: 32px;
+            margin-bottom: 30px;
+            position: relative;
+            clear: both;
+            overflow: visible;
+            width: 100%;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            box-sizing: border-box;
+            display: block;
+            z-index: 2;
         }
         
         .section-title {
@@ -655,6 +807,16 @@
             border-radius: 12px;
             padding: 20px;
             height: 400px;
+        }
+        
+        .main-chart-container {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
         
         .features-section {
@@ -941,39 +1103,39 @@
         <!-- 数据内容区域（初始隐藏） -->
         <div id="dataContent" style="display: none;">
         
-        <!-- 核心指标卡片 -->
-        <div class="metrics-grid">
-            <div class="metric-card">
+        <!-- 核心指标综合分析区域 -->
+        <div class="core-metrics-section">
+            <div class="section-title">📈 核心指标趋势分析</div>
+            <div class="core-metrics-container">
+                <!-- 左侧：核心指标卡片 -->
+                <div class="metrics-cards-column">
+                    <div class="metric-card metric-card-cyan">
                 <div class="metric-title">💼 企微开通人数</div>
-                <div class="metric-value">30,990</div>
-                <div class="metric-change neutral">—</div>
+                        <div class="metric-value">30,990</div>
+                        <div class="metric-change neutral">—</div>
             </div>
-            <div class="metric-card">
+                    <div class="metric-card metric-card-purple">
                 <div class="metric-title">🔐 企微登录人数</div>
-                <div class="metric-value">20,926</div>
-                <div class="metric-change neutral">—</div>
+                        <div class="metric-value">20,926</div>
+                        <div class="metric-change neutral">—</div>
             </div>
-            <div class="metric-card">
-                <div class="metric-title">🛍️ 企微智慧导购访问人数</div>
-                <div class="metric-value">6,489</div>
-                <div class="metric-change neutral">—</div>
+                    <div class="metric-card metric-card-green">
+                        <div class="metric-title">🛍️ 企微智慧导购访问人数</div>
+                        <div class="metric-value">6,489</div>
+                        <div class="metric-change neutral">—</div>
             </div>
-            <div class="metric-card">
-                <div class="metric-title">⚡ 企微智慧导购使用人数</div>
-                <div class="metric-value">4,517</div>
-                <div class="metric-change neutral">—</div>
+                    <div class="metric-card metric-card-red">
+                        <div class="metric-title">⚡ 企微智慧导购使用人数</div>
+                        <div class="metric-value">4,517</div>
+                        <div class="metric-change neutral">—</div>
             </div>
         </div>
 
-        <!-- 主趋势图 -->
-        <div class="chart-section">
-            <div class="section-title">📈 核心指标趋势分析</div>
-            <div class="charts-grid">
-                <div class="chart-container">
+                <!-- 右侧：趋势图 -->
+                <div class="trend-chart-column">
+                <div class="main-chart-container">
                     <canvas id="mainTrendChart"></canvas>
                 </div>
-                <div class="chart-container">
-                    <canvas id="growthChart"></canvas>
                 </div>
             </div>
         </div>
@@ -991,9 +1153,14 @@
             </div>
         </div>
 
-        <!-- 功能模块分析 -->
+        <!-- 功能模块数据分析 -->
         <div class="chart-section">
-            <div class="section-title">🎯 功能模块使用情况</div>
+            <div class="section-title">📊 功能模块</div>
+            <div class="chart-container">
+                <canvas id="growthChart"></canvas>
+            </div>
+            
+            <div class="section-title" style="margin-top: 40px;">🎯 功能模块使用情况</div>
             <div class="features-section">
                 <div class="feature-card growing">
                     <div class="feature-header">
@@ -1225,6 +1392,8 @@
             </div>
         </div>
 
+        </div> <!-- 功能模块数据分析section结束 -->
+
         <!-- 下载报表区域 -->
         <div class="download-section">
             <h3>📊 导出数据报表</h3>
@@ -1297,14 +1466,15 @@
                 }, {
                     label: '企微智慧导购使用人数',
                     data: [4517, 5848, 8254, 10179, 10999],
-                    borderColor: '#F59E0B',
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderColor: '#FF0000',
+                    backgroundColor: 'rgba(255, 0, 0, 0.2)',
                     tension: 0.4,
-                    borderWidth: 3,
-                    pointBackgroundColor: '#F59E0B',
+                    borderWidth: 5,
+                    pointBackgroundColor: '#FF0000',
                     pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointRadius: 5
+                    pointBorderWidth: 4,
+                    pointRadius: 8,
+                    borderDash: [8, 4]
                 }]
             },
             options: {
@@ -1374,7 +1544,7 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: '核心指标增长率排行',
+                        text: '功能核心指标增长率排行',
                         color: '#ffffff',
                         font: { size: 16 }
                     },
