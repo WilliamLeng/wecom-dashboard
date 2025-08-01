@@ -5,25 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>企微智慧导购数据仪表板 - WilliamLeng</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- 备用CDN -->
-    <script>
-        // 检查Chart.js是否加载成功，如果失败则加载备用CDN
-        if (typeof Chart === 'undefined') {
-            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"><\/script>');
-        }
-    </script>
 
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-        
-        /* 加载动画 */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
         
         body {
@@ -570,26 +557,6 @@
             padding: 20px;
         }
         
-        /* 确保所有主要容器不会重叠 */
-        .core-metrics-section,
-        .chart-section {
-            width: 100%;
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
-            display: block;
-            float: none;
-            position: relative;
-        }
-        
-        /* 全局容器清理 */
-        .container::after,
-        #dataContent::after {
-            content: "";
-            display: table;
-            clear: both;
-        }
-        
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -597,100 +564,11 @@
             margin-bottom: 32px;
         }
         
-        /* 新的核心指标布局样式 */
-        .core-metrics-section {
-            margin-bottom: 40px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 32px 32px 50px 32px;
-            position: relative;
-            z-index: 1;
-            clear: both;
-            width: 100%;
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
-            box-sizing: border-box;
-            overflow: visible;
-        }
-        
-        .core-metrics-container {
-            display: grid;
-            grid-template-columns: 400px 1fr;
-            gap: 30px;
-            align-items: stretch;
-            height: 420px;
-            overflow: visible;
-            width: 100%;
-            position: relative;
-        }
-        
-        .metrics-cards-column {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            height: 100%;
-        }
-        
-        .metrics-cards-column .metric-card {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-height: 90px;
-        }
-        
-        .trend-chart-column {
-            height: 100%;
-            padding: 15px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* 响应式调整 */
-        @media (max-width: 1200px) {
-            .core-metrics-container {
-                grid-template-columns: 1fr;
-                gap: 20px;
-                height: auto;
-            }
-            .metrics-cards-column {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                grid-template-rows: repeat(2, 1fr);
-                gap: 12px;
-                height: 200px;
-                margin-bottom: 20px;
-            }
-            .metrics-cards-column .metric-card {
-                flex: none;
-                min-height: 90px;
-            }
-            .trend-chart-column {
-                height: 420px;
-            }
-            .core-metrics-section {
-                margin-bottom: 30px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .metrics-cards-column {
-                grid-template-columns: 1fr;
-                grid-template-rows: repeat(4, 1fr);
-                height: 320px;
-            }
-            .trend-chart-column {
-                height: 350px;
-            }
-        }
-        
         .metric-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            padding: 16px;
+            padding: 24px;
             text-align: center;
             transition: all 0.2s ease;
             backdrop-filter: blur(10px);
@@ -707,14 +585,14 @@
             font-size: 14px;
             font-weight: 500;
             color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
         
         .metric-value {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 600;
             color: #ffffff;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             line-height: 1;
         }
         
@@ -735,55 +613,12 @@
             color: rgba(255, 255, 255, 0.6);
         }
         
-        /* 核心指标卡片颜色对应趋势图线条 */
-        .metric-card-cyan {
-            border-left: 4px solid #22d3ee;
-        }
-        .metric-card-cyan:hover {
-            border-color: #22d3ee;
-            box-shadow: 0 8px 32px rgba(34, 211, 238, 0.2);
-        }
-        
-        .metric-card-purple {
-            border-left: 4px solid #a855f7;
-        }
-        .metric-card-purple:hover {
-            border-color: #a855f7;
-            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.2);
-        }
-        
-        .metric-card-green {
-            border-left: 4px solid #10b981;
-        }
-        .metric-card-green:hover {
-            border-color: #10b981;
-            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.2);
-        }
-        
-        .metric-card-red {
-            border-left: 4px solid #ff0000;
-        }
-        .metric-card-red:hover {
-            border-color: #ff0000;
-            box-shadow: 0 8px 32px rgba(255, 0, 0, 0.3);
-        }
-        
         .chart-section {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
             padding: 32px;
-            margin-bottom: 30px;
-            position: relative;
-            clear: both;
-            overflow: visible;
-            width: 100%;
-            max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
-            box-sizing: border-box;
-            display: block;
-            z-index: 2;
+            margin-bottom: 32px;
         }
         
         .section-title {
@@ -807,16 +642,6 @@
             border-radius: 12px;
             padding: 20px;
             height: 400px;
-        }
-        
-        .main-chart-container {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 20px;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
         }
         
         .features-section {
@@ -996,32 +821,6 @@
             transform: translateY(-1px);
         }
         
-        .query-btn {
-            background: linear-gradient(135deg, #10B981, #059669);
-            color: #ffffff;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            outline: none;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-            margin-top: 20px;
-        }
-        
-        .query-btn:hover {
-            background: linear-gradient(135deg, #059669, #047857);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-        }
-        
-        .query-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-        }
-        
         @media (max-width: 768px) {
             .charts-grid {
                 grid-template-columns: 1fr;
@@ -1044,7 +843,7 @@
     <div class="watermark"></div>
     
     <div class="header">
-        <h1>方太·企微智慧导购 功能使用数据平台</h1>
+        <h1>🏠 方太厨电·企微智慧导购数据中心</h1>
         <div class="filters">
             <div class="filter-group">
                 <div class="filter-label">数据周期</div>
@@ -1057,85 +856,72 @@
             <div class="filter-group">
                 <div class="filter-label">结束月份</div>
                 <select id="endMonth">
-                    <option value="2025-06" selected>2025年6月</option>
-                    <option value="2025-05">2025年5月</option>
-                    <option value="2025-04">2025年4月</option>
-                    <option value="2025-03">2025年3月</option>
-                    <option value="2025-02">2025年2月</option>
+                    <option value="2024-06" selected>2024年6月</option>
+                    <option value="2024-05">2024年5月</option>
+                    <option value="2024-04">2024年4月</option>
+                    <option value="2024-03">2024年3月</option>
+                    <option value="2024-02">2024年2月</option>
+                    <option value="2024-01">2024年1月</option>
                 </select>
             </div>
             <div class="filter-group">
                 <div class="filter-label">组织层级</div>
                 <select id="orgLevel">
-                    <option selected>整体</option>
-                    <option disabled style="color: #888;">大区（暂无数据）</option>
-                    <option disabled style="color: #888;">分公司（暂无数据）</option>
+                    <option>整体</option>
+                    <option>大区</option>
+                    <option>分公司</option>
                 </select>
             </div>
             <div class="filter-group">
                 <div class="filter-label">对比维度</div>
                 <select id="compareType">
-                    <option selected>环比</option>
-                    <option disabled style="color: #888;">同比（暂无数据）</option>
+                    <option>环比</option>
+                    <option>同比</option>
                     <option>绝对值</option>
                 </select>
-            </div>
-            <div class="filter-group">
-                <button id="queryBtn" class="query-btn">
-                    🔍 查询数据
-                </button>
             </div>
         </div>
     </div>
 
     <div class="container">
-        <!-- 数据说明和范围提示 -->
-        <div style="margin-bottom: 20px;">
-            <div style="text-align: center; margin-bottom: 12px; padding: 10px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; color: rgba(255, 255, 255, 0.9); font-size: 13px;">
-                📋 <strong>数据说明</strong>：2025年2-6月整体数据，支持动态环比分析 | 增长率排行显示选择月份所有指标的环比增长率排名 | 大区/分公司和同比数据暂未收集
-            </div>
-            <div id="dataRangeInfo" style="text-align: center; padding: 12px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; color: rgba(255, 255, 255, 0.8); font-size: 14px;">
-            📅 <span id="currentRange">请选择查询条件并点击"查询数据"按钮开始分析</span>
-                <div id="loadingHint" style="font-size: 12px; margin-top: 6px; opacity: 0.7;">💡 选择时间范围和结束月份，然后点击查询按钮展示数据</div>
-            </div>
+        <!-- 当前数据范围提示 -->
+        <div id="dataRangeInfo" style="text-align: center; margin-bottom: 20px; padding: 12px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; color: rgba(255, 255, 255, 0.8); font-size: 14px;">
+            📅 当前显示：<span id="currentRange">最近6个月 (2024年1月 - 2024年6月)</span>
         </div>
         
-        <!-- 数据内容区域（初始隐藏） -->
-        <div id="dataContent" style="display: none;">
-        
-        <!-- 核心指标综合分析区域 -->
-        <div class="core-metrics-section">
-            <div class="section-title">📈 核心指标趋势分析</div>
-            <div class="core-metrics-container">
-                <!-- 左侧：核心指标卡片 -->
-                <div class="metrics-cards-column">
-                    <div class="metric-card metric-card-cyan">
+        <!-- 核心指标卡片 -->
+        <div class="metrics-grid">
+            <div class="metric-card">
                 <div class="metric-title">💼 企微开通人数</div>
-                        <div class="metric-value">30,990</div>
-                        <div class="metric-change neutral">—</div>
+                <div class="metric-value">33,824</div>
+                <div class="metric-change neutral">📊 环比 0%</div>
             </div>
-                    <div class="metric-card metric-card-purple">
+            <div class="metric-card">
                 <div class="metric-title">🔐 企微登录人数</div>
-                        <div class="metric-value">20,926</div>
-                        <div class="metric-change neutral">—</div>
+                <div class="metric-value">29,247</div>
+                <div class="metric-change positive">📈 环比 +1%</div>
             </div>
-                    <div class="metric-card metric-card-green">
-                        <div class="metric-title">🛍️ 企微智慧导购访问人数</div>
-                        <div class="metric-value">6,489</div>
-                        <div class="metric-change neutral">—</div>
+            <div class="metric-card">
+                <div class="metric-title">🛍️ 智慧导购访问</div>
+                <div class="metric-value">13,434</div>
+                <div class="metric-change positive">📈 环比 +1%</div>
             </div>
-                    <div class="metric-card metric-card-red">
-                        <div class="metric-title">⚡ 企微智慧导购使用人数</div>
-                        <div class="metric-value">4,517</div>
-                        <div class="metric-change neutral">—</div>
+            <div class="metric-card">
+                <div class="metric-title">⚡ 智慧导购使用</div>
+                <div class="metric-value">10,999</div>
+                <div class="metric-change positive">📈 环比 +8%</div>
             </div>
         </div>
 
-                <!-- 右侧：趋势图 -->
-                <div class="trend-chart-column">
-                <div class="main-chart-container">
+        <!-- 主趋势图 -->
+        <div class="chart-section">
+            <div class="section-title">📈 核心指标趋势分析</div>
+            <div class="charts-grid">
+                <div class="chart-container">
                     <canvas id="mainTrendChart"></canvas>
                 </div>
+                <div class="chart-container">
+                    <canvas id="growthChart"></canvas>
                 </div>
             </div>
         </div>
@@ -1153,14 +939,9 @@
             </div>
         </div>
 
-        <!-- 功能模块数据分析 -->
+        <!-- 功能模块分析 -->
         <div class="chart-section">
-            <div class="section-title">📊 功能模块</div>
-            <div class="chart-container">
-                <canvas id="growthChart"></canvas>
-            </div>
-            
-            <div class="section-title" style="margin-top: 40px;">🎯 功能模块使用情况</div>
+            <div class="section-title">🎯 功能模块使用情况</div>
             <div class="features-section">
                 <div class="feature-card growing">
                     <div class="feature-header">
@@ -1170,22 +951,22 @@
                         <div class="metric-item">
                             <div class="metric-label">使用人数</div>
                             <div class="metric-right">
-                                <div class="metric-value">1,168</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">6,222</div>
+                                <div class="metric-change positive">+41%</div>
                             </div>
                         </div>
                         <div class="metric-item">
                             <div class="metric-label">创建数量</div>
                             <div class="metric-right">
-                                <div class="metric-value">5,615</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">76,320</div>
+                                <div class="metric-change positive">+75%</div>
                             </div>
                         </div>
                         <div class="metric-item">
                             <div class="metric-label">分享次数</div>
                             <div class="metric-right">
-                                <div class="metric-value">3,276</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">27,549</div>
+                                <div class="metric-change positive">+175%</div>
                             </div>
                         </div>
                     </div>
@@ -1199,22 +980,22 @@
                         <div class="metric-item">
                             <div class="metric-label">已触发好友数</div>
                             <div class="metric-right">
-                                <div class="metric-value">369,990</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">1,190,926</div>
+                                <div class="metric-change positive">+86%</div>
                             </div>
                         </div>
                         <div class="metric-item">
                             <div class="metric-label">打开数</div>
                             <div class="metric-right">
-                                <div class="metric-value">239,854</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">363,798</div>
+                                <div class="metric-change positive">+38%</div>
                             </div>
                         </div>
                         <div class="metric-item">
-                            <div class="metric-label">产生线索数</div>
+                            <div class="metric-label">打开率</div>
                             <div class="metric-right">
-                                <div class="metric-value">30,686</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">31%</div>
+                                <div class="metric-change negative">-3%</div>
                             </div>
                         </div>
                     </div>
@@ -1228,28 +1009,28 @@
                         <div class="metric-item">
                             <div class="metric-label">应执行员工人次</div>
                             <div class="metric-right">
-                                <div class="metric-value">799,776</div>
-                                <div class="metric-change neutral">—</div>
-                            </div>
-                        </div>
-                        <div class="metric-item">
-                            <div class="metric-label">创建数量</div>
-                            <div class="metric-right">
-                                <div class="metric-value">96</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">1,796,130</div>
+                                <div class="metric-change positive">+24%</div>
                             </div>
                         </div>
                         <div class="metric-item">
                             <div class="metric-label">已执行员工人次</div>
                             <div class="metric-right">
-                                <div class="metric-value">22,717</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">95,860</div>
+                                <div class="metric-change negative">-34%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">执行率</div>
+                            <div class="metric-right">
+                                <div class="metric-value">5.3%</div>
+                                <div class="metric-change negative">-47%</div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="feature-card growing">
+                <div class="feature-card declining">
                     <div class="feature-header">
                         <div class="feature-title">🛒 选购指南</div>
                     </div>
@@ -1257,28 +1038,28 @@
                         <div class="metric-item">
                             <div class="metric-label">使用人数</div>
                             <div class="metric-right">
-                                <div class="metric-value">75</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">176</div>
+                                <div class="metric-change negative">-7%</div>
                             </div>
                         </div>
                         <div class="metric-item">
                             <div class="metric-label">创建+更新数量</div>
                             <div class="metric-right">
-                                <div class="metric-value">125</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">375</div>
+                                <div class="metric-change negative">-14%</div>
                             </div>
                         </div>
                         <div class="metric-item">
                             <div class="metric-label">分享数量</div>
                             <div class="metric-right">
-                                <div class="metric-value">112</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">320</div>
+                                <div class="metric-change positive">+62%</div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="feature-card growing">
+                <div class="feature-card declining">
                     <div class="feature-header">
                         <div class="feature-title">🤖 AI问答</div>
                     </div>
@@ -1286,21 +1067,28 @@
                         <div class="metric-item">
                             <div class="metric-label">使用人数</div>
                             <div class="metric-right">
-                                <div class="metric-value">76</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">917</div>
+                                <div class="metric-change negative">-32%</div>
                             </div>
                         </div>
                         <div class="metric-item">
                             <div class="metric-label">使用人次</div>
                             <div class="metric-right">
-                                <div class="metric-value">369</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">2,591</div>
+                                <div class="metric-change negative">-93%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">平均使用次数</div>
+                            <div class="metric-right">
+                                <div class="metric-value">2.8</div>
+                                <div class="metric-change negative">-91%</div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="feature-card growing">
+                <div class="feature-card declining">
                     <div class="feature-header">
                         <div class="feature-title">🏪 门店活动</div>
                     </div>
@@ -1309,21 +1097,21 @@
                             <div class="metric-label">创建数量</div>
                             <div class="metric-right">
                                 <div class="metric-value">10</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-change negative">-38%</div>
                             </div>
                         </div>
                         <div class="metric-item">
                             <div class="metric-label">审核通过数量</div>
                             <div class="metric-right">
                                 <div class="metric-value">3</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-change negative">-81%</div>
                             </div>
                         </div>
                         <div class="metric-item">
                             <div class="metric-label">浏览量</div>
                             <div class="metric-right">
                                 <div class="metric-value">0</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-change negative">-100%</div>
                             </div>
                         </div>
                     </div>
@@ -1338,14 +1126,14 @@
                             <div class="metric-label">总数量</div>
                             <div class="metric-right">
                                 <div class="metric-value">5,260</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-change positive">+32%</div>
                             </div>
                         </div>
                         <div class="metric-item">
                             <div class="metric-label">分享量</div>
                             <div class="metric-right">
-                                <div class="metric-value">8,790</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">19,889</div>
+                                <div class="metric-change positive">+127%</div>
                             </div>
                         </div>
                     </div>
@@ -1360,21 +1148,28 @@
                             <div class="metric-label">分享人数</div>
                             <div class="metric-right">
                                 <div class="metric-value">285</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-change neutral">0%</div>
                             </div>
                         </div>
                         <div class="metric-item">
                             <div class="metric-label">分享人次</div>
                             <div class="metric-right">
                                 <div class="metric-value">2,398</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-change positive">+446%</div>
+                            </div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-label">NPS人数</div>
+                            <div class="metric-right">
+                                <div class="metric-value">252</div>
+                                <div class="metric-change positive">+196%</div>
                             </div>
                         </div>
                         <div class="metric-item">
                             <div class="metric-label">NPS评分</div>
                             <div class="metric-right">
-                                <div class="metric-value">0</div>
-                                <div class="metric-change neutral">—</div>
+                                <div class="metric-value">9.888</div>
+                                <div class="metric-change neutral">0%</div>
                             </div>
                         </div>
                     </div>
@@ -1392,38 +1187,15 @@
             </div>
         </div>
 
-        </div> <!-- 功能模块数据分析section结束 -->
-
         <!-- 下载报表区域 -->
         <div class="download-section">
             <h3>📊 导出数据报表</h3>
             <p style="margin: 10px 0; opacity: 0.8;">一键下载完整数据报表，包含所有功能的详细统计</p>
             <button class="download-btn" onclick="downloadReport()">📥 下载Excel报表</button>
         </div>
-        
-        </div> <!-- dataContent结束 -->
     </div>
 
     <script>
-        // 检查Chart.js加载状态并显示提示
-        let chartLoadCheckInterval = setInterval(function() {
-            const hintElement = document.getElementById('loadingHint');
-            if (typeof Chart !== 'undefined') {
-                // Chart.js加载完成
-                if (hintElement) {
-                    hintElement.textContent = '💡 选择时间范围和结束月份，然后点击查询按钮展示数据';
-                    hintElement.style.color = 'rgba(255, 255, 255, 0.7)';
-                }
-                clearInterval(chartLoadCheckInterval);
-            } else {
-                // Chart.js还在加载
-                if (hintElement) {
-                    hintElement.textContent = '⏳ 正在加载图表库，请稍候...';
-                    hintElement.style.color = '#fbbf24';
-                }
-            }
-        }, 100);
-
         // 主趋势图
         const mainCtx = document.getElementById('mainTrendChart').getContext('2d');
         window.usageTrendChart = new Chart(mainCtx, {
@@ -1453,7 +1225,7 @@
                     pointBorderWidth: 2,
                     pointRadius: 5
                 }, {
-                    label: '企微智慧导购访问人数',
+                    label: '智慧导购访问',
                     data: [6489, 8104, 11436, 13285, 13434],
                     borderColor: '#10B981',
                     backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -1464,17 +1236,16 @@
                     pointBorderWidth: 2,
                     pointRadius: 5
                 }, {
-                    label: '企微智慧导购使用人数',
+                    label: '智慧导购使用',
                     data: [4517, 5848, 8254, 10179, 10999],
-                    borderColor: '#FF0000',
-                    backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                    borderColor: '#F59E0B',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
                     tension: 0.4,
-                    borderWidth: 5,
-                    pointBackgroundColor: '#FF0000',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#F59E0B',
                     pointBorderColor: '#ffffff',
-                    pointBorderWidth: 4,
-                    pointRadius: 8,
-                    borderDash: [8, 4]
+                    pointBorderWidth: 2,
+                    pointRadius: 5
                 }]
             },
             options: {
@@ -1544,7 +1315,7 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: '功能核心指标增长率排行',
+                        text: '核心指标增长率排行',
                         color: '#ffffff',
                         font: { size: 16 }
                     },
@@ -1586,8 +1357,7 @@
                     pointBackgroundColor: '#10B981',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointRadius: 5,
-                    spanGaps: false
+                    pointRadius: 5
                 }, {
                     label: '三类人员日活',
                     data: [884, 1279, 1604, 2171, 2411],
@@ -1598,8 +1368,7 @@
                     pointBackgroundColor: '#06B6D4',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointRadius: 5,
-                    spanGaps: false
+                    pointRadius: 5
                 }]
             },
             options: {
@@ -1653,8 +1422,7 @@
                     pointBackgroundColor: '#8B5CF6',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointRadius: 5,
-                    spanGaps: false
+                    pointRadius: 5
                 }, {
                     label: '三类人员月活',
                     data: [4949, 6181, 8545, 9818, 10223],
@@ -1665,8 +1433,7 @@
                     pointBackgroundColor: '#F59E0B',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointRadius: 5,
-                    spanGaps: false
+                    pointRadius: 5
                 }]
             },
             options: {
@@ -1708,374 +1475,45 @@
 
         // 下载报表功能
         function downloadReport() {
-            try {
-                // 获取当前查询的时间范围
-                const timeRange = document.getElementById('timeRange').value;
-                const endMonth = document.getElementById('endMonth').value;
-                const monthsToShow = parseInt(timeRange.replace('最近', '').replace('个月', ''));
-                
-                // 使用与图表相同的数据生成逻辑
-                const { displayMonths, actualDataRange } = generateExportData(endMonth, monthsToShow);
-                
-                // 生成CSV内容
-                let csvContent = '\uFEFF'; // BOM头，确保Excel正确显示中文
-                
-                // 1. 添加标题和筛选信息
-                csvContent += '方太企微数据分析报表\n';
-                csvContent += `查询时间范围：${timeRange}\n`;
-                csvContent += `结束月份：${endMonth}\n`;
-                csvContent += `实际数据范围：${actualDataRange}\n`;
-                csvContent += `生成时间：${new Date().toLocaleString('zh-CN')}\n\n`;
-                
-                // 2. 核心指标数据
-                // 使用页面中已定义的fullData（在script底部定义）
-                const pageFullData = window.fullData || {
-                    months: ['2月', '3月', '4月', '5月', '6月'],
-                    coreMetrics: {
-                        '企微开通人数': [30990, 31734, 32913, 33672, 33824],
-                        '企微登录人数': [20926, 22941, 27823, 29051, 29247],
-                        '企微智慧导购访问人数': [6489, 8104, 11436, 13285, 13434],
-                        '企微智慧导购使用人数': [4517, 5848, 8254, 10179, 10999]
-                    },
-                    modules: {
-                        '厨房健康检测': {
-                            '使用人数': [1168, 1869, 2995, 4410, 6222],
-                            '创建数量': [5615, 15504, 26161, 43693, 76320],
-                            '分享数量': [3276, 8663, 12060, 10028, 27549]
-                        },
-                        '欢迎语': {
-                            '创建条数': [380, 389, 447, 513, 603],
-                            '已触发好友数': [369990, 382583, 463006, 641248, 1190926],
-                            '打开数': [239854, 250055, 270790, 297712, 363798],
-                            '打开率': [65, 65, 58, 46, 31],
-                            '产生线索数': [30686, 32291, 35036, 38321, 45069],
-                            '活跃线索产生率': [12.79, 12.91, 12.94, 12.87, 12.39],
-                            '成交线索数': [2157, 2220, 2335, 2517, 2899]
-                        },
-                        '朋友圈管理': {
-                            '创建数量': [96, 170, 123, 180, 195],
-                            '应执行员工人次': [799776, 1354483, 736346, 1451003, 1796130],
-                            '已执行员工人次': [22717, 36858, 34739, 84353, 95860],
-                            '员工执行率': [3, 2.7, 4.7, 5.8, 5.3],
-                            '触达顾客次数': [2615312, 3980114, 2677486, 5960501, 9581610]
-                        },
-                        '选购指南': {
-                            '使用人数': [75, 68, 149, 190, 176],
-                            '创建+更新数量': [125, 261, 317, 438, 375],
-                            '分享数量': [112, 231, 248, 198, 320]
-                        },
-                        'AI问答': {
-                            '使用人数': [76, 609, 1244, 1341, 917],
-                            '使用人次': [369, 1857, 3543, 3568, 2591]
-                        },
-                        '门店活动': {
-                            '创建数量': [5, 1, 13, 16, 10],
-                            '审核通过数量': [2, 0, 6, 11, 3],
-                            '浏览量': [43, 1, 21, 87, 0],
-                            '转发数': [15, 2, 3, 9, 0],
-                            '线索数': [2, 3, 3, 1, 1],
-                            '订单数': [0, 4, 0, 0, 0]
-                        },
-                        '厨房案例': {
-                            '总数量': [3981, 3982, 3982, 3982, 5260],
-                            '分享量': [8790, 13376, 15193, 23377, 19889]
-                        },
-                        '用户服务卡': {
-                            '分享人数': [0, 0, 85, 108, 285],
-                            '分享人次': [0, 0, 558, 439, 2398],
-                            'NPS人数': [0, 0, 98, 85, 252],
-                            'NPS评分': [0, 0, 9.783, 9.882, 9.888]
-                        }
-                    }
-                };
-                
-                csvContent += '核心指标月度趋势\n';
-                csvContent += '月份,企微开通人数,企微登录人数,企微智慧导购访问人数,企微智慧导购使用人数\n';
-                
-                // 生成核心指标的导出数据
-                for (let i = 0; i < displayMonths.length; i++) {
-                    const monthLabel = displayMonths[i];
-                    const dataValues = getCoreMetricValues(pageFullData, monthLabel);
-                    csvContent += `${monthLabel},${dataValues.values.join(',')}\n`;
-                }
-                
-                csvContent += '\n';
-                
-                csvContent += '\n';
-                
-                // 3. 添加完整的功能模块数据
-                
-                // 添加各个功能模块的数据
-                Object.keys(pageFullData.modules).forEach(moduleName => {
-                    csvContent += `${moduleName}\n`;
-                    const moduleData = pageFullData.modules[moduleName];
-                    const metricNames = Object.keys(moduleData);
-                    
-                    // 添加表头
-                    csvContent += `月份,${metricNames.join(',')}\n`;
-                    
-                    // 添加数据行
-                    for (let i = 0; i < displayMonths.length; i++) {
-                        const monthLabel = displayMonths[i];
-                        const moduleValues = getModuleValues(pageFullData, moduleName, metricNames, monthLabel);
-                        csvContent += `${monthLabel},${moduleValues.values.join(',')}\n`;
-                    }
-                    
-                    csvContent += '\n';
-                });
-                
-                // 4. 添加说明
-                csvContent += '说明：\n';
-                csvContent += '• 上述数据根据您选择的时间范围动态生成\n';
-                csvContent += '• 仅2025年2-6月有实际数据\n';
-                csvContent += '• 其他月份显示"无数据"\n\n';
-                
-                // 生成文件名
-                const fileName = `方太企微数据报表_${endMonth.replace('-', '年')}_${new Date().toISOString().slice(0, 10)}.csv`;
-                
-                // 创建和下载文件
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                
-                if (link.download !== undefined) {
-                    const url = URL.createObjectURL(blob);
-                    link.setAttribute('href', url);
-                    link.setAttribute('download', fileName);
-                    link.style.visibility = 'hidden';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    
-                    // 显示成功提示
-                    alert(`📊 报表下载成功！\n\n文件名：${fileName}\n\n包含数据：\n• 核心指标月度趋势（4项）\n• 用户活跃度分析（日活/月活）\n• 厨房健康检测详细数据\n• 欢迎语管理完整统计\n• 朋友圈管理数据\n• 选购指南使用情况\n• AI问答统计\n• 门店活动数据\n• 厨房案例统计\n• 用户服务卡及NPS数据\n• 环比增长率分析\n\n请用Excel打开查看完整报表。`);
-                } else {
-                    alert('浏览器不支持文件下载功能，请使用现代浏览器。');
-                }
-                
-            } catch (error) {
-                console.error('下载报表时出错：', error);
-                alert('报表生成失败，请稍后再试。');
-            }
+            alert('📊 正在生成Excel报表...\n\n包含以下数据：\n• 核心指标月度趋势\n• 各功能详细使用统计\n• 用户活跃度分析（日活/月活）\n• 厨房健康检测和案例数据\n• 用户服务卡和NPS评分\n• 朋友圈管理和欢迎语\n• AI问答和选购指南\n• 门店活动数据\n• 同比环比分析');
         }
 
-        // 生成导出数据的时间范围（与图表逻辑一致）
-        function generateExportData(endMonth, monthsToShow) {
-            // 解析选择的年月
-            const selectedYear = parseInt(endMonth.split('-')[0]); // 2025
-            const selectedMonth = parseInt(endMonth.split('-')[1]); // 2 (2月)
-            
-            // 生成完整的时间轴
-            const displayMonths = [];
-            
-            // 从结束月份开始，往前推算
-            for (let i = 0; i < monthsToShow; i++) {
-                // 计算距离结束月份的偏移量（从最早的月份开始）
-                let monthsBack = monthsToShow - 1 - i;
-                
-                let displayYear = selectedYear;
-                let displayMonth = selectedMonth - monthsBack;
-                
-                // 处理月份小于1的情况（跨年）
-                while (displayMonth <= 0) {
-                    displayMonth += 12;
-                    displayYear -= 1;
-                }
-                
-                // 生成月份标签
-                let monthLabel;
-                if (displayYear === selectedYear) {
-                    monthLabel = `${displayMonth}月`;
-                } else {
-                    monthLabel = `${displayMonth}月(${displayYear}年)`;
-                }
-                
-                displayMonths.push(monthLabel);
-            }
-            
-            // 计算实际数据范围描述
-            const firstMonth = displayMonths[0];
-            const lastMonth = displayMonths[displayMonths.length - 1];
-            const actualDataRange = `${firstMonth} - ${lastMonth}，共${monthsToShow}个月（仅2025年2-6月有实际数据）`;
-            
-            return { displayMonths, actualDataRange };
-        }
-        
-        // 获取核心指标数值
-        function getCoreMetricValues(fullData, monthLabel) {
-            // 检查是否包含年份标识
-            const yearMatch = monthLabel.match(/\((\d+)年\)/);
-            
-            if (yearMatch) {
-                // 如果有年份标识，检查是否是2025年
-                const year = parseInt(yearMatch[1]);
-                if (year !== 2025) {
-                    // 不是2025年的数据，返回无数据
-                    return {
-                        hasData: false,
-                        values: ['无数据', '无数据', '无数据', '无数据']
-                    };
-                }
-            }
-            
-            // 移除年份标识，只保留月份
-            const cleanMonth = monthLabel.replace(/\(\d+年\)/, '');
-            
-            // 检查是否在数据范围内（2025年2-6月）
-            const monthIndex = fullData.months.indexOf(cleanMonth);
-            
-            if (monthIndex !== -1) {
-                return {
-                    hasData: true,
-                    values: [
-                        fullData.coreMetrics['企微开通人数'][monthIndex],
-                        fullData.coreMetrics['企微登录人数'][monthIndex],
-                        fullData.coreMetrics['企微智慧导购访问人数'][monthIndex],
-                        fullData.coreMetrics['企微智慧导购使用人数'][monthIndex]
-                    ]
-                };
-            } else {
-                return {
-                    hasData: false,
-                    values: ['无数据', '无数据', '无数据', '无数据']
-                };
-            }
-        }
-        
-        // 获取模块数据值
-        function getModuleValues(fullData, moduleName, metricNames, monthLabel) {
-            // 检查是否包含年份标识
-            const yearMatch = monthLabel.match(/\((\d+)年\)/);
-            
-            if (yearMatch) {
-                // 如果有年份标识，检查是否是2025年
-                const year = parseInt(yearMatch[1]);
-                if (year !== 2025) {
-                    // 不是2025年的数据，返回无数据
-                    return {
-                        hasData: false,
-                        values: metricNames.map(() => '无数据')
-                    };
-                }
-            }
-            
-            // 移除年份标识，只保留月份
-            const cleanMonth = monthLabel.replace(/\(\d+年\)/, '');
-            
-            // 检查是否在数据范围内（2025年2-6月）
-            const monthIndex = fullData.months.indexOf(cleanMonth);
-            
-            if (monthIndex !== -1 && fullData.modules[moduleName]) {
-                const values = metricNames.map(metricName => {
-                    return fullData.modules[moduleName][metricName] ? 
-                           fullData.modules[moduleName][metricName][monthIndex] : '无数据';
-                });
-                return { hasData: true, values };
-            } else {
-                return {
-                    hasData: false,
-                    values: metricNames.map(() => '无数据')
-                };
-            }
-        }
-
-        // 筛选器交互逻辑（移除自动更新）
+        // 筛选器交互逻辑
         document.getElementById('timeRange').addEventListener('change', function() {
-            console.log('时间范围已改变，等待用户点击查询按钮');
+            updateDataRange();
         });
         
         document.getElementById('endMonth').addEventListener('change', function() {
-            console.log('结束月份已改变，等待用户点击查询按钮');
-        });
-        
-        // 查询按钮点击事件（简化版）
-        document.getElementById('queryBtn').addEventListener('click', function() {
-            const button = this;
-            
-            // 检查Chart.js是否加载完成
-            if (typeof Chart === 'undefined') {
-                alert('图表库正在加载中，请稍后再试...');
-                return;
-            }
-            
-            // 1. 简单的按钮状态变化
-            button.textContent = '🔄 查询中...';
-            button.disabled = true;
-            
-            // 2. 立即执行数据更新
-            setTimeout(() => {
-                try {
-                    console.log('开始执行updateDataRange...');
             updateDataRange();
-                    
-                    // 显示数据内容区域
-                    document.getElementById('dataContent').style.display = 'block';
-                    
-                    // 3. 恢复按钮状态
-                    button.textContent = '🔍 查询数据';
-                    button.disabled = false;
-                    
-                    // 4. 成功提示
-                    button.style.background = '#10B981';
-                    setTimeout(() => {
-                        button.style.background = '';
-                    }, 1000);
-                    
-                    console.log('✅ 查询完成');
-                    
-                } catch (error) {
-                    console.error('数据更新出错：', error);
-                    button.textContent = '🔍 查询数据';
-                    button.disabled = false;
-                    alert(`数据更新失败：${error.message}`);
-                }
-            }, 100);
         });
         
         function updateDataRange() {
             const timeRange = document.getElementById('timeRange').value;
             const endMonth = document.getElementById('endMonth').value;
-            console.log(`🔍 updateDataRange被调用: timeRange=${timeRange}, endMonth=${endMonth}`);
             
-            // 数据月份映射
-            const monthsMap = {
-                '2025-02': { index: 0, name: '2月' },
-                '2025-03': { index: 1, name: '3月' },
-                '2025-04': { index: 2, name: '4月' },
-                '2025-05': { index: 3, name: '5月' },
-                '2025-06': { index: 4, name: '6月' }
-            };
+            // 计算显示的月份范围
+            let monthsToShow = 6; // 默认6个月
+            if (timeRange.includes('3个月')) monthsToShow = 3;
+            if (timeRange.includes('12个月')) monthsToShow = 12;
             
-            const availableMonths = ['2月', '3月', '4月', '5月', '6月'];
+            // 计算开始月份
+            const endDate = new Date(endMonth + '-01');
+            const startDate = new Date(endDate);
+            startDate.setMonth(startDate.getMonth() - (monthsToShow - 1));
             
-            // 计算图表显示范围 - 以选择月份为终点，向前推算
-            const monthsToShow = parseInt(timeRange.replace('最近', '').replace('个月', ''));
+            // 格式化日期显示
+            const startText = `${startDate.getFullYear()}年${startDate.getMonth() + 1}月`;
+            const endText = `${endDate.getFullYear()}年${endDate.getMonth() + 1}月`;
             
-            // 安全检查：确保endMonth存在于monthsMap中
-            if (!monthsMap[endMonth]) {
-                console.error(`无效的结束月份: ${endMonth}`);
-                alert(`无效的月份选择: ${endMonth}`);
-                return;
-            }
-            
-            const endIndex = monthsMap[endMonth].index;
-            
-            // 计算实际有数据的起始索引
-            const dataStartIndex = Math.max(0, endIndex - monthsToShow + 1);
-            const actualDataMonths = availableMonths.slice(dataStartIndex, endIndex + 1);
-            
-            // 更新页面显示 - 只显示实际有数据的范围
-            const actualEndMonth = monthsMap[endMonth].name;
-            const actualStartMonth = actualDataMonths[0];
-            const actualEndMonthName = actualDataMonths[actualDataMonths.length - 1];
-            
+            // 更新页面显示
             document.getElementById('currentRange').textContent = 
-                `${timeRange} (查询到2025年${actualEndMonth}) [显示：2025年${actualStartMonth} - 2025年${actualEndMonthName}，共${actualDataMonths.length}个月]`;
+                `${timeRange} (${startText} - ${endText})`;
             
             console.log(`显示数据范围：${timeRange}，截止到${endMonth}`);
-            console.log(`实际图表数据：${actualDataMonths.join('-')}`);
+            console.log(`具体范围：${startText} - ${endText}`);
             
             // 实际的图表更新逻辑
-            updateChartsWithDateRange(timeRange, endMonth, monthsToShow);
+            updateChartsWithDateRange(timeRange, endMonth);
         }
         
         // 简单的交互效果
@@ -2089,108 +1527,26 @@
         // 组织层级和对比维度的交互
         document.getElementById('orgLevel').addEventListener('change', function() {
             const level = this.value;
-            if (level === '大区（暂无数据）' || level === '分公司（暂无数据）') {
-                alert('💡 温馨提示\n\n目前只有整体数据，大区和分公司层级的数据暂未收集。\n\n如需分层级数据分析，请联系数据管理员。');
-                this.value = '整体'; // 重置为整体
-                return;
-            }
             console.log(`切换到组织层级：${level}`);
+            // 这里可以添加相应的数据筛选逻辑
         });
         
         document.getElementById('compareType').addEventListener('change', function() {
             const type = this.value;
-            if (type === '同比（暂无数据）') {
-                alert('💡 温馨提示\n\n目前只有今年2-6月的数据，同比分析需要去年同期数据。\n\n如需同比分析，请提供去年同期数据。');
-                this.value = '环比'; // 重置为环比
-                return;
-            }
             console.log(`切换对比维度：${type}`);
-            
-            if (type === '绝对值') {
-                console.log('切换到绝对值显示模式');
-                // 可以在这里添加绝对值显示逻辑
-            }
+            // 这里可以添加相应的对比数据显示逻辑
         });
         
-        // 页面加载时初始化数据范围显示（不更新图表）
-        function initializeDataRange() {
-            const timeRange = document.getElementById('timeRange').value;
-            const endMonth = document.getElementById('endMonth').value;
-            
-            // 数据月份映射
-            const monthsMap = {
-                '2025-02': { index: 0, name: '2月' },
-                '2025-03': { index: 1, name: '3月' },
-                '2025-04': { index: 2, name: '4月' },
-                '2025-05': { index: 3, name: '5月' },
-                '2025-06': { index: 4, name: '6月' }
-            };
-            
-            const availableMonths = ['2月', '3月', '4月', '5月', '6月'];
-            
-            // 计算实际显示的月份范围
-            const monthsToShow = parseInt(timeRange.replace('最近', '').replace('个月', ''));
-            const endIndex = monthsMap[endMonth].index;
-            const startIndex = Math.max(0, endIndex - monthsToShow + 1);
-            
-            const actualMonths = availableMonths.slice(startIndex, endIndex + 1);
-            const startMonth = actualMonths[0];
-            const endMonthName = actualMonths[actualMonths.length - 1];
-            
-            // 更新页面显示（使用实际数据范围）
-            document.getElementById('currentRange').textContent = 
-                `${timeRange} (查询到2025年${endMonthName}) [显示：2025年${startMonth} - 2025年${endMonthName}，共${actualMonths.length}个月]`;
-        }
-        
-        // 页面加载时不再自动初始化，等待用户点击查询
-        // initializeDataRange();
-        
-        // 强制重置所有环比为"—"（解决缓存问题）
-        console.log('🔧 页面加载时强制重置所有环比');
-        document.querySelectorAll('.metric-card .metric-change').forEach(el => {
-            console.log(`🔄 强制重置: ${el.textContent} -> —`);
-            el.textContent = '—';
-            el.className = 'metric-change neutral';
-        });
-        
-        // 强制设置为2月数据（临时解决方案）
-        setTimeout(() => {
-            console.log('🔧 强制调用2月数据更新');
-            const fullData = {
-                months: ['2月', '3月', '4月', '5月', '6月'],
-                coreMetrics: {
-                    '企微开通人数': [30990, 31734, 32913, 33672, 33824],
-                    '企微登录人数': [20926, 22941, 27823, 29051, 29247],
-                    '企微智慧导购访问人数': [6489, 8104, 11436, 13285, 13434],
-                    '企微智慧导购使用人数': [4517, 5848, 8254, 10179, 10999]
-                }
-            };
-            updateCoreMetricCards(fullData, 0); // 强制使用2月数据（endIndex=0）
-            
-            // 清理任何可能残留的加载遮罩
-            document.querySelectorAll('div').forEach(el => {
-                if (el.style.position === 'fixed' && el.style.zIndex === '9999') {
-                    el.remove();
-                }
-            });
-            document.body.style.opacity = '1';
-        }, 500);
-        
-        // 添加键盘快捷键支持
-        document.addEventListener('keydown', function(event) {
-            // 按Enter键触发查询
-            if (event.key === 'Enter' && (event.target.tagName === 'SELECT' || event.target.id === 'queryBtn')) {
-                document.getElementById('queryBtn').click();
-            }
-        });
+        // 页面加载时初始化数据范围显示
+        updateDataRange();
 
         // 数据筛选函数
-        function updateChartsWithDateRange(timeRange, endMonth, monthsToShow) {
+        function updateChartsWithDateRange(timeRange, endMonth) {
             // 定义完整的真实数据
             const fullData = {
                 months: ['2月', '3月', '4月', '5月', '6月'],
                 monthsMap: {
-                    '2025-02': 0, '2025-03': 1, '2025-04': 2, '2025-05': 3, '2025-06': 4
+                    '2024-02': 0, '2024-03': 1, '2024-04': 2, '2024-05': 3, '2024-06': 4
                 },
                 coreMetrics: {
                     '企微开通人数': [30990, 31734, 32913, 33672, 33824],
@@ -2207,443 +1563,74 @@
                         '使用人数': [1168, 1869, 2995, 4410, 6222],
                         '创建数量': [5615, 15504, 26161, 43693, 76320],
                         '分享数量': [3276, 8663, 12060, 10028, 27549]
-                    },
-                    '选购指南': {
-                        '使用人数': [75, 68, 149, 190, 176],
-                        '创建+更新数量': [125, 261, 317, 438, 375],
-                        '分享数量': [112, 231, 248, 198, 320]
-                    },
-                    '朋友圈管理': {
-                        '创建数量': [96, 170, 123, 180, 195],
-                        '应执行员工人次': [799776, 1354483, 736346, 1451003, 1796130],
-                        '已执行员工人次': [22717, 36858, 34739, 84353, 95860],
-                        '员工执行率': [3, 2.7, 4.7, 5.8, 5.3],
-                        '触达顾客次数': [2615312, 3980114, 2677486, 5960501, 9581610]
-                    },
-                    '门店活动': {
-                        '创建数量': [5, 1, 13, 16, 10],
-                        '审核通过数量': [2, 0, 6, 11, 3],
-                        '浏览量': [43, 1, 21, 87, 0],
-                        '转发数': [15, 2, 3, 9, 0],
-                        '线索数': [2, 3, 3, 1, 1],
-                        '订单数': [0, 4, 0, 0, 0]
-                    },
-                    '欢迎语': {
-                        '创建条数': [380, 389, 447, 513, 603],
-                        '已触发好友数': [369990, 382583, 463006, 641248, 1190926],
-                        '打开数': [239854, 250055, 270790, 297712, 363798],
-                        '打开率': [65, 65, 58, 46, 31],
-                        '产生线索数': [30686, 32291, 35036, 38321, 45069],
-                        '活跃线索产生率': [12.79, 12.91, 12.94, 12.87, 12.39],
-                        '成交线索数': [2157, 2220, 2335, 2517, 2899]
-                    },
-                    '厨房案例': {
-                        '总数量': [3981, 3982, 3982, 3982, 5260],
-                        '分享量': [8790, 13376, 15193, 23377, 19889]
-                    },
-                    'AI问答': {
-                        '使用人数': [76, 609, 1244, 1341, 917],
-                        '使用人次': [369, 1857, 3543, 3568, 2591]
-                    },
-                    '用户服务卡': {
-                        '分享人数': [0, 0, 85, 108, 285],
-                        '分享人次': [0, 0, 558, 439, 2398],
-                        'NPS人数': [0, 0, 98, 85, 252],
-                        'NPS评分': [0, 0, 9.783, 9.882, 9.888]
                     }
                 }
             };
             
-            // 设置为全局变量，供导出功能使用
-            window.fullData = fullData;
-            
-            // 根据时间范围筛选数据 - 以选择月份为终点向前推算
+            // 根据时间范围筛选数据
+            const monthsToShow = parseInt(timeRange.replace('近', '').replace('个月', ''));
             const endIndex = fullData.monthsMap[endMonth] || 4; // 默认6月
+            const startIndex = Math.max(0, endIndex - monthsToShow + 1);
             
-            console.log(`筛选参数：时间范围=${timeRange}, 结束月份=${endMonth}, 月份数=${monthsToShow}`);
-            console.log(`计算结果：endIndex=${endIndex}`);
-            
-            // 生成图表显示的月份标签和数据数组
-            const displayMonths = [];
-            const displayData = {
-                '企微开通人数': [],
-                '企微登录人数': [],
-                '企微智慧导购访问人数': [],
-                '企微智慧导购使用人数': [],
-                '全体企微智慧导购日活': [],
-                '全体企微智慧导购月活': [],
-                '三类人员企微智慧日活': [],
-                '三类人员企微智慧月活': []
-            };
-            
-            // 修改逻辑：显示完整的时间轴，从选择的年月往前推算
-            // 解析选择的年月
-            const selectedYear = parseInt(endMonth.split('-')[0]); // 2025
-            const selectedMonth = parseInt(endMonth.split('-')[1]); // 2 (2月)
-            
-            console.log(`选择的年月：${selectedYear}年${selectedMonth}月`);
-            
-            // 从选择的年月往前推算完整的时间轴
-            for (let i = 0; i < monthsToShow; i++) {
-                // 计算当前要显示的月份（从最早的开始）
-                let displayYear = selectedYear;
-                let displayMonth = selectedMonth - (monthsToShow - 1 - i);
-                
-                // 处理月份小于1的情况（跨年）
-                while (displayMonth <= 0) {
-                    displayMonth += 12;
-                    displayYear -= 1;
-                }
-                
-                // 生成月份标签
-                let monthLabel;
-                if (displayYear === selectedYear) {
-                    monthLabel = `${displayMonth}月`;
-                } else {
-                    monthLabel = `${displayMonth}月(${displayYear}年)`;
-                }
-                
-                displayMonths.push(monthLabel);
-                
-                // 检查是否有数据：只有2025年2-6月有数据
-                let dataIndex = -1;
-                if (displayYear === 2025 && displayMonth >= 2 && displayMonth <= 6) {
-                    // 在我们的数据范围内，计算对应的数组索引
-                    dataIndex = displayMonth - 2; // 2月->0, 3月->1, 4月->2, 5月->3, 6月->4
-                }
-                
-                console.log(`月份：${monthLabel}, 年：${displayYear}, 月：${displayMonth}, 数据索引：${dataIndex}`);
-                
-                // 填充数据，有数据的月份用实际数据，没数据的用null
-                Object.keys(displayData).forEach(key => {
-                    if (dataIndex !== -1) {
-                        displayData[key].push(fullData.coreMetrics[key][dataIndex]);
-                    } else {
-                        displayData[key].push(null); // Chart.js会将null显示为空点
-                    }
-                });
-            }
-            
-            console.log(`显示完整时间轴：${monthsToShow}个月，结束于${fullData.months[endIndex]}`);
-            
-            console.log('图表显示月份：', displayMonths);
-            console.log('图表数据示例（开通人数）：', displayData['企微开通人数']);
+            // 获取筛选后的数据
+            const filteredMonths = fullData.months.slice(startIndex, endIndex + 1);
+            const filteredUsageData = fullData.coreMetrics['企微智慧导购使用人数'].slice(startIndex, endIndex + 1);
+            const filteredDailyActive = fullData.coreMetrics['全体企微智慧导购日活'].slice(startIndex, endIndex + 1);
+            const filteredMonthlyActive = fullData.coreMetrics['全体企微智慧导购月活'].slice(startIndex, endIndex + 1);
             
             // 更新主要趋势图表
             if (window.usageTrendChart) {
-                window.usageTrendChart.data.labels = displayMonths;
+                window.usageTrendChart.data.labels = filteredMonths;
+                // 更新多个数据系列
+                const filteredOpenData = fullData.coreMetrics['企微开通人数'].slice(startIndex, endIndex + 1);
+                const filteredLoginData = fullData.coreMetrics['企微登录人数'].slice(startIndex, endIndex + 1);
+                const filteredVisitData = fullData.coreMetrics['企微智慧导购访问人数'].slice(startIndex, endIndex + 1);
                 
-                console.log('主趋势图数据更新：');
-                console.log('- 企微开通人数:', displayData['企微开通人数']);
-                console.log('- 企微登录人数:', displayData['企微登录人数']);
-                console.log('- 企微智慧导购访问人数:', displayData['企微智慧导购访问人数']);
-                console.log('- 企微智慧导购使用人数:', displayData['企微智慧导购使用人数']);
-                
-                window.usageTrendChart.data.datasets[0].data = displayData['企微开通人数'];
-                window.usageTrendChart.data.datasets[1].data = displayData['企微登录人数'];
-                window.usageTrendChart.data.datasets[2].data = displayData['企微智慧导购访问人数'];
-                window.usageTrendChart.data.datasets[3].data = displayData['企微智慧导购使用人数'];
+                window.usageTrendChart.data.datasets[0].data = filteredOpenData;
+                window.usageTrendChart.data.datasets[1].data = filteredLoginData;
+                window.usageTrendChart.data.datasets[2].data = filteredVisitData;
+                window.usageTrendChart.data.datasets[3].data = filteredUsageData;
                 window.usageTrendChart.update();
             }
             
             // 更新日活图表
             if (window.dailyActiveChart) {
-                window.dailyActiveChart.data.labels = displayMonths;
-                window.dailyActiveChart.data.datasets[0].data = displayData['全体企微智慧导购日活'];
-                window.dailyActiveChart.data.datasets[1].data = displayData['三类人员企微智慧日活'];
+                window.dailyActiveChart.data.labels = filteredMonths;
+                window.dailyActiveChart.data.datasets[0].data = filteredDailyActive;
                 window.dailyActiveChart.update();
             }
             
             // 更新月活图表
             if (window.monthlyActiveChart) {
-                window.monthlyActiveChart.data.labels = displayMonths;
-                window.monthlyActiveChart.data.datasets[0].data = displayData['全体企微智慧导购月活'];
-                window.monthlyActiveChart.data.datasets[1].data = displayData['三类人员企微智慧月活'];
+                window.monthlyActiveChart.data.labels = filteredMonths;
+                window.monthlyActiveChart.data.datasets[0].data = filteredMonthlyActive;
                 window.monthlyActiveChart.update();
             }
             
-            // 更新增长率排行图表 - 显示选择月份所有指标的环比增长率
+            // 更新增长率排行图表
             if (window.growthChart) {
-                // 如果选择的是2月（索引0），则显示提示信息，因为没有环比数据
-                if (endIndex === 0) {
-                    window.growthChart.data.labels = ['2月为起始月份，无环比增长率数据'];
-                    window.growthChart.data.datasets[0].data = [0];
-                    window.growthChart.update();
-                    console.log('2月是起始月份，无法计算环比增长率');
-                    // 不要return，继续执行updateCoreMetricCards
-                } else {
-                
-                // 计算当前选择月份的环比增长率
-                const calculateMonthGrowthRate = (data, monthIndex) => {
-                    if (monthIndex <= 0 || monthIndex >= data.length || data[monthIndex] === null || data[monthIndex - 1] === null) return null;
-                    const current = data[monthIndex];
-                    const previous = data[monthIndex - 1];
-                    return previous > 0 ? ((current - previous) / previous * 100) : null;
+                // 计算增长率（环比）
+                const calculateGrowthRate = (data, startIdx, endIdx) => {
+                    if (startIdx >= endIdx || endIdx >= data.length) return 0;
+                    const current = data[endIdx];
+                    const previous = data[endIdx - 1];
+                    return previous > 0 ? ((current - previous) / previous * 100).toFixed(1) : 0;
                 };
                 
-                const allGrowthRates = [];
+                const growthRates = [
+                    { name: '厨房健康检测-使用人数', rate: calculateGrowthRate(fullData.modules['厨房健康检测']['使用人数'], startIndex, endIndex) },
+                    { name: '厨房健康检测-创建数量', rate: calculateGrowthRate(fullData.modules['厨房健康检测']['创建数量'], startIndex, endIndex) },
+                    { name: '厨房健康检测-分享数量', rate: calculateGrowthRate(fullData.modules['厨房健康检测']['分享数量'], startIndex, endIndex) },
+                    { name: '企微智慧导购-使用人数', rate: calculateGrowthRate(fullData.coreMetrics['企微智慧导购使用人数'], startIndex, endIndex) },
+                    { name: '全体企微智慧导购-日活', rate: calculateGrowthRate(fullData.coreMetrics['全体企微智慧导购日活'], startIndex, endIndex) }
+                ].sort((a, b) => parseFloat(b.rate) - parseFloat(a.rate));
                 
-                // 核心指标
-                Object.keys(fullData.coreMetrics).forEach(metricName => {
-                    const rate = calculateMonthGrowthRate(fullData.coreMetrics[metricName], endIndex);
-                    if (rate !== null) {
-                        allGrowthRates.push({ 
-                            name: `核心指标-${metricName}`, 
-                            rate: parseFloat(rate.toFixed(1)) 
-                        });
-                    }
-                });
-                
-                // 功能模块指标
-                Object.keys(fullData.modules).forEach(moduleName => {
-                    Object.keys(fullData.modules[moduleName]).forEach(metricName => {
-                        const rate = calculateMonthGrowthRate(fullData.modules[moduleName][metricName], endIndex);
-                        if (rate !== null) {
-                            allGrowthRates.push({ 
-                                name: `${moduleName}-${metricName}`, 
-                                rate: parseFloat(rate.toFixed(1)) 
-                            });
-                        }
-                    });
-                });
-                
-                // 按增长率排序，取前10名
-                const topGrowthRates = allGrowthRates
-                    .sort((a, b) => b.rate - a.rate)
-                    .slice(0, 10);
-                
-                console.log(`${fullData.months[endIndex]}月环比增长率排行：`, topGrowthRates);
-                
-                window.growthChart.data.labels = topGrowthRates.map(item => item.name);
-                window.growthChart.data.datasets[0].data = topGrowthRates.map(item => item.rate);
+                window.growthChart.data.labels = growthRates.map(item => item.name);
+                window.growthChart.data.datasets[0].data = growthRates.map(item => parseFloat(item.rate));
                 window.growthChart.update();
-                }
             }
             
-            // 更新核心指标卡片数据
-            updateCoreMetricCards(fullData, endIndex);
-            
-            // 更新功能模块卡片数据
-            updateFeatureModuleCards(fullData, endIndex);
-            
-            console.log(`数据已更新：显示${endMonth}的数据`);
-        }
-        
-        // 更新核心指标卡片数据
-        function updateCoreMetricCards(fullData, endIndex) {
-            console.log(`🔍 updateCoreMetricCards被调用: endIndex=${endIndex}, 月份=${fullData.months[endIndex]}`);
-            
-            // 检查当前选择的月份
-            const selectedMonth = document.getElementById('endMonth').value;
-            console.log(`🔍 当前选择的月份: ${selectedMonth}`);
-            
-            // 如果选择的是2月，强制所有环比为"—"
-            if (selectedMonth === '2025-02') {
-                console.log('🚫 检测到选择2月，强制所有环比为"—"');
-                document.querySelectorAll('.metric-card .metric-change').forEach(el => {
-                    el.textContent = '—';
-                    el.className = 'metric-change neutral';
-                });
-                // 更新数值为2月数据
-                document.querySelector('.metric-card:nth-child(1) .metric-value').textContent = '30,990';
-                document.querySelector('.metric-card:nth-child(2) .metric-value').textContent = '20,926';
-                document.querySelector('.metric-card:nth-child(3) .metric-value').textContent = '6,489';
-                document.querySelector('.metric-card:nth-child(4) .metric-value').textContent = '4,517';
-                return; // 直接返回，不执行后续逻辑
-            }
-            
-            // 先全部重置为"—"
-            document.querySelectorAll('.metric-card .metric-change').forEach(el => {
-                console.log(`🔄 重置环比元素: ${el.textContent} -> —`);
-                el.textContent = '—';
-                el.className = 'metric-change neutral';
-            });
-            const currentMonth = fullData.months[endIndex];
-            // 更新企微开通人数
-            const openCount = fullData.coreMetrics['企微开通人数'][endIndex];
-            document.querySelector('.metric-card:nth-child(1) .metric-value').textContent = openCount.toLocaleString();
-            // 更新企微登录人数
-            const loginCount = fullData.coreMetrics['企微登录人数'][endIndex];
-            document.querySelector('.metric-card:nth-child(2) .metric-value').textContent = loginCount.toLocaleString();
-            // 更新企微智慧导购访问人数
-            const visitCount = fullData.coreMetrics['企微智慧导购访问人数'][endIndex];
-            document.querySelector('.metric-card:nth-child(3) .metric-value').textContent = visitCount.toLocaleString();
-            // 更新企微智慧导购使用人数
-            const usageCount = fullData.coreMetrics['企微智慧导购使用人数'][endIndex];
-            document.querySelector('.metric-card:nth-child(4) .metric-value').textContent = usageCount.toLocaleString();
-            // 只有不是第一个月才显示环比
-            if (endIndex > 0) {
-                // 企微开通人数环比
-                const openPrev = fullData.coreMetrics['企微开通人数'][endIndex - 1];
-                const openChange = ((openCount - openPrev) / openPrev * 100).toFixed(1);
-                const openChangeEl = document.querySelector('.metric-card:nth-child(1) .metric-change');
-                openChangeEl.textContent = `📊 环比 ${openChange >= 0 ? '+' : ''}${openChange}%`;
-                openChangeEl.className = `metric-change ${openChange >= 0 ? 'positive' : 'negative'}`;
-                // 企微登录人数环比
-                const loginPrev = fullData.coreMetrics['企微登录人数'][endIndex - 1];
-                const loginChange = ((loginCount - loginPrev) / loginPrev * 100).toFixed(1);
-                const loginChangeEl = document.querySelector('.metric-card:nth-child(2) .metric-change');
-                loginChangeEl.textContent = `📊 环比 ${loginChange >= 0 ? '+' : ''}${loginChange}%`;
-                loginChangeEl.className = `metric-change ${loginChange >= 0 ? 'positive' : 'negative'}`;
-                // 智慧导购访问人数环比
-                const visitPrev = fullData.coreMetrics['企微智慧导购访问人数'][endIndex - 1];
-                const visitChange = ((visitCount - visitPrev) / visitPrev * 100).toFixed(1);
-                const visitChangeEl = document.querySelector('.metric-card:nth-child(3) .metric-change');
-                visitChangeEl.textContent = `📊 环比 ${visitChange >= 0 ? '+' : ''}${visitChange}%`;
-                visitChangeEl.className = `metric-change ${visitChange >= 0 ? 'positive' : 'negative'}`;
-                // 智慧导购使用人数环比
-                const usagePrev = fullData.coreMetrics['企微智慧导购使用人数'][endIndex - 1];
-                const usageChange = ((usageCount - usagePrev) / usagePrev * 100).toFixed(1);
-                const usageChangeEl = document.querySelector('.metric-card:nth-child(4) .metric-change');
-                usageChangeEl.textContent = `📊 环比 ${usageChange >= 0 ? '+' : ''}${usageChange}%`;
-                usageChangeEl.className = `metric-change ${usageChange >= 0 ? 'positive' : 'negative'}`;
-            }
-        }
-
-        // 更新功能模块卡片数据
-        function updateFeatureModuleCards(fullData, endIndex) {
-            console.log(`🔍 updateFeatureModuleCards被调用: endIndex=${endIndex}`);
-            
-            // 检查当前选择的月份
-            const selectedMonth = document.getElementById('endMonth').value;
-            
-            // 如果选择的是2月，功能模块也显示"—"
-            if (selectedMonth === '2025-02') {
-                console.log('🚫 2月：功能模块所有环比设为"—"');
-                document.querySelectorAll('.feature-card .metric-change').forEach(el => {
-                    el.textContent = '—';
-                    el.className = 'metric-change neutral';
-                });
-                // 更新所有模块的数值为2月数据
-                updateFeatureModuleValues(fullData, 0);
-                return;
-            }
-            
-            // 计算和更新功能模块的环比
-            updateFeatureModuleValues(fullData, endIndex);
-            updateFeatureModuleChanges(fullData, endIndex);
-        }
-        
-        // 更新功能模块的数值
-        function updateFeatureModuleValues(fullData, endIndex) {
-            // 厨房健康检测
-            const healthCard = document.querySelector('.feature-card:nth-child(1)');
-            healthCard.querySelector('.metric-item:nth-child(1) .metric-value').textContent = fullData.modules['厨房健康检测']['使用人数'][endIndex].toLocaleString();
-            healthCard.querySelector('.metric-item:nth-child(2) .metric-value').textContent = fullData.modules['厨房健康检测']['创建数量'][endIndex].toLocaleString();
-            healthCard.querySelector('.metric-item:nth-child(3) .metric-value').textContent = fullData.modules['厨房健康检测']['分享数量'][endIndex].toLocaleString();
-            
-            // 欢迎语管理
-            const welcomeCard = document.querySelector('.feature-card:nth-child(2)');
-            welcomeCard.querySelector('.metric-item:nth-child(1) .metric-value').textContent = fullData.modules['欢迎语']['已触发好友数'][endIndex].toLocaleString();
-            welcomeCard.querySelector('.metric-item:nth-child(2) .metric-value').textContent = fullData.modules['欢迎语']['打开数'][endIndex].toLocaleString();
-            welcomeCard.querySelector('.metric-item:nth-child(3) .metric-value').textContent = fullData.modules['欢迎语']['产生线索数'][endIndex].toLocaleString();
-            
-            // 朋友圈管理
-            const friendsCard = document.querySelector('.feature-card:nth-child(3)');
-            friendsCard.querySelector('.metric-item:nth-child(1) .metric-value').textContent = fullData.modules['朋友圈管理']['应执行员工人次'][endIndex].toLocaleString();
-            friendsCard.querySelector('.metric-item:nth-child(2) .metric-value').textContent = fullData.modules['朋友圈管理']['创建数量'][endIndex].toLocaleString();
-            friendsCard.querySelector('.metric-item:nth-child(3) .metric-value').textContent = fullData.modules['朋友圈管理']['已执行员工人次'][endIndex].toLocaleString();
-            
-            // 选购指南
-            const guideCard = document.querySelector('.feature-card:nth-child(4)');
-            guideCard.querySelector('.metric-item:nth-child(1) .metric-value').textContent = fullData.modules['选购指南']['使用人数'][endIndex].toLocaleString();
-            guideCard.querySelector('.metric-item:nth-child(2) .metric-value').textContent = fullData.modules['选购指南']['创建+更新数量'][endIndex].toLocaleString();
-            guideCard.querySelector('.metric-item:nth-child(3) .metric-value').textContent = fullData.modules['选购指南']['分享数量'][endIndex].toLocaleString();
-            
-            // AI问答
-            const aiCard = document.querySelector('.feature-card:nth-child(5)');
-            aiCard.querySelector('.metric-item:nth-child(1) .metric-value').textContent = fullData.modules['AI问答']['使用人数'][endIndex].toLocaleString();
-            aiCard.querySelector('.metric-item:nth-child(2) .metric-value').textContent = fullData.modules['AI问答']['使用人次'][endIndex].toLocaleString();
-            
-            // 门店活动
-            const storeCard = document.querySelector('.feature-card:nth-child(6)');
-            storeCard.querySelector('.metric-item:nth-child(1) .metric-value').textContent = fullData.modules['门店活动']['创建数量'][endIndex].toLocaleString();
-            storeCard.querySelector('.metric-item:nth-child(2) .metric-value').textContent = fullData.modules['门店活动']['审核通过数量'][endIndex].toLocaleString();
-            storeCard.querySelector('.metric-item:nth-child(3) .metric-value').textContent = fullData.modules['门店活动']['浏览量'][endIndex].toLocaleString();
-            
-            // 厨房案例
-            const caseCard = document.querySelector('.feature-card:nth-child(7)');
-            caseCard.querySelector('.metric-item:nth-child(1) .metric-value').textContent = fullData.modules['厨房案例']['总数量'][endIndex].toLocaleString();
-            caseCard.querySelector('.metric-item:nth-child(2) .metric-value').textContent = fullData.modules['厨房案例']['分享量'][endIndex].toLocaleString();
-            
-            // 用户服务卡
-            const serviceCard = document.querySelector('.feature-card:nth-child(8)');
-            serviceCard.querySelector('.metric-item:nth-child(1) .metric-value').textContent = fullData.modules['用户服务卡']['分享人数'][endIndex].toLocaleString();
-            serviceCard.querySelector('.metric-item:nth-child(2) .metric-value').textContent = fullData.modules['用户服务卡']['分享人次'][endIndex].toLocaleString();
-            serviceCard.querySelector('.metric-item:nth-child(3) .metric-value').textContent = fullData.modules['用户服务卡']['NPS评分'][endIndex].toLocaleString();
-        }
-        
-        // 更新功能模块的环比变化
-        function updateFeatureModuleChanges(fullData, endIndex) {
-            if (endIndex === 0) return; // 2月没有环比
-            
-            // 计算环比的通用函数
-            const calculateChange = (current, previous) => {
-                if (previous === 0) return current > 0 ? 100 : 0;
-                return Math.round(((current - previous) / previous) * 100);
-            };
-            
-            // 厨房健康检测
-            const healthCard = document.querySelector('.feature-card:nth-child(1)');
-            updateModuleCardChange(healthCard, 1, calculateChange(fullData.modules['厨房健康检测']['使用人数'][endIndex], fullData.modules['厨房健康检测']['使用人数'][endIndex-1]));
-            updateModuleCardChange(healthCard, 2, calculateChange(fullData.modules['厨房健康检测']['创建数量'][endIndex], fullData.modules['厨房健康检测']['创建数量'][endIndex-1]));
-            updateModuleCardChange(healthCard, 3, calculateChange(fullData.modules['厨房健康检测']['分享数量'][endIndex], fullData.modules['厨房健康检测']['分享数量'][endIndex-1]));
-            
-            // 欢迎语管理
-            const welcomeCard = document.querySelector('.feature-card:nth-child(2)');
-            updateModuleCardChange(welcomeCard, 1, calculateChange(fullData.modules['欢迎语']['已触发好友数'][endIndex], fullData.modules['欢迎语']['已触发好友数'][endIndex-1]));
-            updateModuleCardChange(welcomeCard, 2, calculateChange(fullData.modules['欢迎语']['打开数'][endIndex], fullData.modules['欢迎语']['打开数'][endIndex-1]));
-            updateModuleCardChange(welcomeCard, 3, calculateChange(fullData.modules['欢迎语']['产生线索数'][endIndex], fullData.modules['欢迎语']['产生线索数'][endIndex-1]));
-            
-            // 朋友圈管理
-            const friendsCard = document.querySelector('.feature-card:nth-child(3)');
-            updateModuleCardChange(friendsCard, 1, calculateChange(fullData.modules['朋友圈管理']['应执行员工人次'][endIndex], fullData.modules['朋友圈管理']['应执行员工人次'][endIndex-1]));
-            updateModuleCardChange(friendsCard, 2, calculateChange(fullData.modules['朋友圈管理']['创建数量'][endIndex], fullData.modules['朋友圈管理']['创建数量'][endIndex-1]));
-            updateModuleCardChange(friendsCard, 3, calculateChange(fullData.modules['朋友圈管理']['已执行员工人次'][endIndex], fullData.modules['朋友圈管理']['已执行员工人次'][endIndex-1]));
-            
-            // 选购指南
-            const guideCard = document.querySelector('.feature-card:nth-child(4)');
-            updateModuleCardChange(guideCard, 1, calculateChange(fullData.modules['选购指南']['使用人数'][endIndex], fullData.modules['选购指南']['使用人数'][endIndex-1]));
-            updateModuleCardChange(guideCard, 2, calculateChange(fullData.modules['选购指南']['创建+更新数量'][endIndex], fullData.modules['选购指南']['创建+更新数量'][endIndex-1]));
-            updateModuleCardChange(guideCard, 3, calculateChange(fullData.modules['选购指南']['分享数量'][endIndex], fullData.modules['选购指南']['分享数量'][endIndex-1]));
-            
-            // AI问答
-            const aiCard = document.querySelector('.feature-card:nth-child(5)');
-            updateModuleCardChange(aiCard, 1, calculateChange(fullData.modules['AI问答']['使用人数'][endIndex], fullData.modules['AI问答']['使用人数'][endIndex-1]));
-            updateModuleCardChange(aiCard, 2, calculateChange(fullData.modules['AI问答']['使用人次'][endIndex], fullData.modules['AI问答']['使用人次'][endIndex-1]));
-            
-            // 门店活动
-            const storeCard = document.querySelector('.feature-card:nth-child(6)');
-            updateModuleCardChange(storeCard, 1, calculateChange(fullData.modules['门店活动']['创建数量'][endIndex], fullData.modules['门店活动']['创建数量'][endIndex-1]));
-            updateModuleCardChange(storeCard, 2, calculateChange(fullData.modules['门店活动']['审核通过数量'][endIndex], fullData.modules['门店活动']['审核通过数量'][endIndex-1]));
-            updateModuleCardChange(storeCard, 3, calculateChange(fullData.modules['门店活动']['浏览量'][endIndex], fullData.modules['门店活动']['浏览量'][endIndex-1]));
-            
-            // 厨房案例
-            const caseCard = document.querySelector('.feature-card:nth-child(7)');
-            updateModuleCardChange(caseCard, 1, calculateChange(fullData.modules['厨房案例']['总数量'][endIndex], fullData.modules['厨房案例']['总数量'][endIndex-1]));
-            updateModuleCardChange(caseCard, 2, calculateChange(fullData.modules['厨房案例']['分享量'][endIndex], fullData.modules['厨房案例']['分享量'][endIndex-1]));
-            
-            // 用户服务卡
-            const serviceCard = document.querySelector('.feature-card:nth-child(8)');
-            updateModuleCardChange(serviceCard, 1, calculateChange(fullData.modules['用户服务卡']['分享人数'][endIndex], fullData.modules['用户服务卡']['分享人数'][endIndex-1]));
-            updateModuleCardChange(serviceCard, 2, calculateChange(fullData.modules['用户服务卡']['分享人次'][endIndex], fullData.modules['用户服务卡']['分享人次'][endIndex-1]));
-            updateModuleCardChange(serviceCard, 3, calculateChange(fullData.modules['用户服务卡']['NPS评分'][endIndex], fullData.modules['用户服务卡']['NPS评分'][endIndex-1]));
-        }
-        
-        // 更新单个模块卡片的环比变化
-        function updateModuleCardChange(card, metricIndex, changePercent) {
-            const changeEl = card.querySelector(`.metric-item:nth-child(${metricIndex}) .metric-change`);
-            
-            if (changePercent === 0) {
-                changeEl.textContent = '0%';
-                changeEl.className = 'metric-change neutral';
-            } else if (changePercent > 0) {
-                changeEl.textContent = `+${changePercent}%`;
-                changeEl.className = 'metric-change positive';
-            } else {
-                changeEl.textContent = `${changePercent}%`;
-                changeEl.className = 'metric-change negative';
-            }
+            console.log(`数据已更新：显示${filteredMonths.join('-')}的数据`);
         }
 
     // 详情弹窗功能
@@ -3028,16 +2015,8 @@
         // 设置标题
         modalTitle.textContent = detail.title;
 
-        // 获取当前的筛选条件
-        const timeRange = document.getElementById('timeRange').value;
-        const endMonth = document.getElementById('endMonth').value;
-        const monthsToShow = parseInt(timeRange.replace('最近', '').replace('个月', ''));
-
-        // 生成与主图表一致的时间轴和数据
-        const { displayMonths, displayDatasets } = generateModalChartData(moduleName, endMonth, monthsToShow);
-
         // 生成多个独立图表
-        modalChartsGrid.innerHTML = displayDatasets.map((dataset, index) => `
+        modalChartsGrid.innerHTML = detail.chartData.datasets.map((dataset, index) => `
             <div class="metric-chart-card">
                 <div class="metric-chart-title">${dataset.label}</div>
                 <div class="metric-chart-canvas">
@@ -3047,7 +2026,7 @@
         `).join('');
 
         // 设置网格布局
-        const chartCount = displayDatasets.length;
+        const chartCount = detail.chartData.datasets.length;
         modalChartsGrid.className = `modal-charts-grid grid-${chartCount}`;
 
         // 显示模态框
@@ -3055,11 +2034,11 @@
 
         // 创建每个独立图表
         setTimeout(() => {
-            displayDatasets.forEach((dataset, index) => {
+            detail.chartData.datasets.forEach((dataset, index) => {
                 const canvas = document.getElementById(`metricChart${index}`);
                 if (canvas) {
                     createSingleMetricChart(canvas, {
-                        labels: displayMonths,
+                        labels: detail.chartData.labels,
                         data: dataset.data,
                         label: dataset.label,
                         borderColor: dataset.borderColor,
@@ -3070,84 +2049,7 @@
         }, 100);
     }
 
-    // 生成模态框图表数据（与主图表一致的时间轴逻辑）
-    function generateModalChartData(moduleName, endMonth, monthsToShow) {
-        // 获取模块的原始数据
-        const detail = moduleDetails[moduleName];
-        
-        // 解析选择的年月
-        const selectedYear = parseInt(endMonth.split('-')[0]); // 2025
-        const selectedMonth = parseInt(endMonth.split('-')[1]); // 2 (2月)
-        
-        console.log(`模态框数据生成：${moduleName}, 选择的年月：${selectedYear}年${selectedMonth}月, 显示${monthsToShow}个月`);
-        
-        // 生成完整的时间轴（与主图表逻辑一致）
-        const displayMonths = [];
-        for (let i = 0; i < monthsToShow; i++) {
-            // 计算当前要显示的月份（从最早的开始）
-            let displayYear = selectedYear;
-            let displayMonth = selectedMonth - (monthsToShow - 1 - i);
-            
-            // 处理月份小于1的情况（跨年）
-            while (displayMonth <= 0) {
-                displayMonth += 12;
-                displayYear -= 1;
-            }
-            
-            // 生成月份标签
-            let monthLabel;
-            if (displayYear === selectedYear) {
-                monthLabel = `${displayMonth}月`;
-            } else {
-                monthLabel = `${displayMonth}月(${displayYear}年)`;
-            }
-            
-            displayMonths.push(monthLabel);
-        }
-        
-        // 为每个数据系列生成对应的数据
-        const displayDatasets = detail.chartData.datasets.map(dataset => {
-            const displayData = [];
-            
-            for (let i = 0; i < monthsToShow; i++) {
-                // 计算当前要显示的月份
-                let displayYear = selectedYear;
-                let displayMonth = selectedMonth - (monthsToShow - 1 - i);
-                
-                // 处理月份小于1的情况（跨年）
-                while (displayMonth <= 0) {
-                    displayMonth += 12;
-                    displayYear -= 1;
-                }
-                
-                // 检查是否有数据：只有2025年2-6月有数据
-                let dataIndex = -1;
-                if (displayYear === 2025 && displayMonth >= 2 && displayMonth <= 6) {
-                    // 在我们的数据范围内，计算对应的数组索引
-                    dataIndex = displayMonth - 2; // 2月->0, 3月->1, 4月->2, 5月->3, 6月->4
-                }
-                
-                // 填充数据，有数据的月份用实际数据，没数据的用null
-                if (dataIndex !== -1) {
-                    displayData.push(dataset.data[dataIndex]);
-                } else {
-                    displayData.push(null); // Chart.js会将null显示为空点
-                }
-            }
-            
-            return {
-                label: dataset.label,
-                data: displayData,
-                borderColor: dataset.borderColor,
-                backgroundColor: dataset.backgroundColor
-            };
-        });
-        
-        console.log(`模态框时间轴：`, displayMonths);
-        console.log(`模态框数据示例（${displayDatasets[0]?.label}）：`, displayDatasets[0]?.data);
-        
-        return { displayMonths, displayDatasets };
-    }
+
 
     // 创建详情图表
     function createDetailChart(canvas, chartData) {
@@ -3227,8 +2129,7 @@
                     pointRadius: 4,
                     pointHoverRadius: 6,
                     borderWidth: 3,
-                    fill: true,
-                    spanGaps: false
+                    fill: true
                 }]
             },
             options: {
