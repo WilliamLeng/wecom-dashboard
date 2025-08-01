@@ -14,6 +14,78 @@
     </script>
 
     <style>
+        /* 密码保护遮罩 */
+        .password-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2a1f3d 0%, #3d2c5f 50%, #2a1f3d 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+        }
+        
+        .password-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .password-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+        
+        .password-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #ffffff;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 20px;
+            outline: none;
+        }
+        
+        .password-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .password-btn {
+            background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .password-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+        
+        .password-error {
+            color: #EF4444;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -1039,6 +1111,16 @@
     </style>
 </head>
 <body>
+    <!-- 密码保护遮罩 -->
+    <div id="passwordOverlay" class="password-overlay">
+        <div class="password-container">
+            <div class="password-title">🔐 方太企微数据平台</div>
+            <input type="password" id="passwordInput" class="password-input" placeholder="请输入访问密码" />
+            <button id="passwordBtn" class="password-btn">进入平台</button>
+            <div id="passwordError" class="password-error">密码错误，请重试</div>
+        </div>
+    </div>
+    
     <!-- 水印层 -->
     <div class="watermark-bg"></div>
     <div class="watermark"></div>
@@ -2175,6 +2257,40 @@
             });
             document.body.style.opacity = '1';
         }, 500);
+        
+        // 密码保护功能
+        const correctPassword = 'fotile2025'; // 设置访问密码
+        const passwordOverlay = document.getElementById('passwordOverlay');
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordBtn = document.getElementById('passwordBtn');
+        const passwordError = document.getElementById('passwordError');
+        
+        // 检查是否已经通过密码验证
+        if (localStorage.getItem('dashboardAccess') === 'true') {
+            passwordOverlay.style.display = 'none';
+        }
+        
+        // 密码验证
+        function checkPassword() {
+            const inputPassword = passwordInput.value;
+            if (inputPassword === correctPassword) {
+                localStorage.setItem('dashboardAccess', 'true');
+                passwordOverlay.style.display = 'none';
+                passwordError.style.display = 'none';
+            } else {
+                passwordError.style.display = 'block';
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+        
+        // 绑定事件
+        passwordBtn.addEventListener('click', checkPassword);
+        passwordInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                checkPassword();
+            }
+        });
         
         // 添加键盘快捷键支持
         document.addEventListener('keydown', function(event) {
