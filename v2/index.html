@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企微智慧导购月度数据后台 V2</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="accessOverlay" class="access-overlay">
+    <div class="access-card">
+      <p class="eyebrow">FOTILE DATA</p>
+      <h1>企微智慧导购月度数据后台 V2</h1>
+      <div class="access-form">
+        <input id="accessInput" type="password" placeholder="请输入访问密码">
+        <button id="accessButton" type="button">进入</button>
+      </div>
+      <p id="accessError" class="access-error">密码错误，请重试</p>
+    </div>
+  </div>
+
+  <main class="dashboard-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">MONTHLY OPERATIONS DASHBOARD</p>
+        <h1>企微智慧导购月度数据后台 V2</h1>
+        <p class="hero-copy">基于月度汇总表自动生成，只展示当前稳定维护的数据口径。</p>
+      </div>
+      <div class="hero-meta">
+        <span id="latestMonth">最新月份：--</span>
+        <span id="generatedAt">更新时间：--</span>
+      </div>
+    </header>
+
+    <section class="toolbar">
+      <label>
+        查看月份
+        <select id="monthSelect"></select>
+      </label>
+      <label>
+        时间范围
+        <select id="rangeSelect">
+          <option value="6">最近 6 个月</option>
+          <option value="3">最近 3 个月</option>
+          <option value="12">最近 12 个月</option>
+          <option value="all">全部月份</option>
+        </select>
+      </label>
+      <label>
+        指标分组
+        <select id="groupSelect">
+          <option value="all">全部分组</option>
+        </select>
+      </label>
+      <button id="downloadButton" type="button">下载数据 JSON</button>
+    </section>
+
+    <section class="summary-grid" id="highlightGrid"></section>
+
+    <section class="insight-panel">
+      <div>
+        <p class="section-kicker">本月观察</p>
+        <h2 id="insightTitle">正在读取数据...</h2>
+      </div>
+      <p id="insightBody">请稍候。</p>
+    </section>
+
+    <section class="analysis-section">
+      <div class="section-title-row">
+        <div>
+          <p class="section-kicker">MONTHLY ANALYSIS</p>
+          <h2>月度分析</h2>
+        </div>
+        <p id="analysisMonth">--</p>
+      </div>
+      <div class="analysis-grid" id="analysisGrid"></div>
+    </section>
+
+    <section class="charts-layout">
+      <article class="chart-card">
+        <div class="card-heading">
+          <p class="section-kicker">核心趋势</p>
+          <h2>基础使用趋势</h2>
+        </div>
+        <div class="chart-box">
+          <canvas id="basicChart"></canvas>
+        </div>
+      </article>
+      <article class="chart-card">
+        <div class="card-heading">
+          <p class="section-kicker">活跃趋势</p>
+          <h2>日活与月活</h2>
+        </div>
+        <div class="chart-box">
+          <canvas id="activeChart"></canvas>
+        </div>
+      </article>
+    </section>
+
+    <section class="module-section">
+      <div class="section-title-row">
+        <div>
+          <p class="section-kicker">指标明细</p>
+          <h2>当前维护的数据模块</h2>
+        </div>
+        <p>点击任意指标查看趋势。</p>
+      </div>
+      <div class="module-grid" id="moduleGrid"></div>
+    </section>
+
+    <section class="notes-section">
+      <div>
+        <p class="section-kicker">数据说明</p>
+        <h2>口径与边界</h2>
+      </div>
+      <ul id="notesList"></ul>
+    </section>
+  </main>
+
+  <div id="metricModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <button id="modalClose" class="modal-close" type="button">×</button>
+      <p class="section-kicker" id="modalGroup">指标趋势</p>
+      <h2 id="modalTitle"></h2>
+      <div class="modal-chart">
+        <canvas id="modalChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
